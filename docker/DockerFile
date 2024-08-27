@@ -1,0 +1,18 @@
+FROM python
+
+RUN mkdir -p /opt/connector
+
+COPY . /opt/connector/
+
+WORKDIR /opt/connector
+
+RUN pip3 install -r requirements.txt
+
+RUN chmod +x entrypoint.sh
+
+RUN rm db.sqlite3 || true
+RUN mkdir db
+
+EXPOSE 8000
+
+ENTRYPOINT ./entrypoint.sh

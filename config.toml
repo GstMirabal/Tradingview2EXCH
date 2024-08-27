@@ -1,0 +1,42 @@
+[project]
+name = "RESTApi_TradingviewToBinance"
+version = "1.0.0"
+description = "This API allows connecting and automating signals sent from TradingView to Binance, facilitating the execution of trading strategies efficiently and without manual intervention."
+author = "Gustavo Mirabal"
+#BASE_DIR = ""
+
+[security]
+DEBUG = "$DEBUG"
+ALLOWED_HOSTS = "$ALLOWED_HOSTS"
+LOCAL_HOST = "$LOCAL_HOST"
+SECURE_BROWSER_XSS_FILTER = "True"
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = "True"
+CSRF_COOKIE_SECURE = "True"
+SESSION_COOKIE_SECURE = "True"
+SECURE_SSL_REDIRECT = "True"
+SECURE_HSTS_SECONDS = "31536000"
+SECURE_HSTS_INCLUDE_SUBDOMAINS = "True"
+SECURE_HSTS_PRELOAD = "True"
+
+[email]
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "$EMAIL_HOST"
+EMAIL_PORT = "$EMAIL_PORT"
+EMAIL_USE_TLS = "True"
+EMAIL_USE_SSL = "False"
+EMAIL_HOST_USER = "$EMAIL_HOST_USER"
+EMAIL_HOST_PASSWORD = "$EMAIL_HOST_PASSWORD"
+DEFAULT_FROM_EMAIL = "$DEFAULT_FROM_EMAIL"
+
+[logging]
+LOG_LEVEL = "$LOG_LEVEL"
+LOG_FILE = "debug.log" 
+
+[db]
+ENGINE = "$ENGINE"
+NAME = "$NAME"
+
+[binance]
+API_KEY = "$API_KEY"
+API_SECRET = "$API_SECRET"
