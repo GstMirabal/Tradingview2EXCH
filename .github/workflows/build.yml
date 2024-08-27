@@ -1,0 +1,113 @@
+name: connector build
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE_PREFIX: "gstmirabal"
+  CONTAINER_IMAGE: "tradingview2exch"
+  DOCKERFILE_FOLDER: "docker"
+
+jobs:
+  get-version:
+    if: ${{ contains(fromJson('["refs/heads/main", "refs/heads/dev"]'), github.ref) }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.new_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Bump version and push tag - prerelease
+        id: version
+        uses: anothrNick/github-tag-action@1.70.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          PRERELEASE: true
+          PRERELEASE_SUFFIX: alpha
+          RELEASE_BRANCHES: main,release/*
+          DEFAULT_BUMP: patch
+          INITIAL_VERSION: 0.0.0
+          WITH_V: false
+          
+  release:
+    if: ${{ contains(fromJson('["refs/heads/main"]'), github.ref) }}
+    runs-on: [ self-hosted ]
+    needs: ["get-version"]
+    steps:
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag: ${{needs.get-version.outputs.version}}
+          name: ${{needs.get-version.outputs.version}}
+          body: ${{ needs.get-version.outputs.changelog }}
+          generateReleaseNotes: true
+
+  build-push-docker:
+    if: ${{ contains(fromJson('["refs/heads/main", "refs/heads/dev"]'), github.ref) }}
+    runs-on: ubuntu-latest
+    needs: ["get-version"]
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: arm64
+            name: linux_arm64
+          - os: linux
+            arch: amd64
+            name: linux_amd64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Log in to registry
+        run: |
+          echo "${{ secrets.DH_PAT }}" | docker login -u ${{ secrets.DH_USER }} --password-stdin
+          echo "${{ secrets.DH_PAT }}" | helm registry login registry-1.docker.io -u ${{ secrets.DH_USER }} --password-stdin
+
+      - name: Build the Docker image
+        run: docker build --platform=${{ matrix.arch }} -t  ${{ env.CONTAINER_IMAGE }}:${{ github.sha }}  -f   ${{ env.DOCKERFILE_FOLDER }}/DockerFile .
+
+      - name: Tag image ${{ matrix.arch }}
+        run: |
+          IMAGE_ID="${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}"
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION="${{needs.get-version.outputs.version}}"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag ${{ env.CONTAINER_IMAGE }}:${{ github.sha }} $IMAGE_ID:$VERSION-${{ matrix.arch }}
+          docker push $IMAGE_ID:$VERSION-${{ matrix.arch }}
+
+  push_manifest:
+    if: ${{ contains(fromJson('["refs/heads/main", "refs/heads/dev"]'), github.ref) }}
+    runs-on: ubuntu-latest
+    needs: ["get-version","build-push-docker"]
+    env:
+      VERSION: "${{needs.get-version.outputs.version}}"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to registry
+        run: |
+          echo "${{ secrets.DH_PAT }}" | docker login -u ${{ secrets.DH_USER }} --password-stdin
+          echo "${{ secrets.DH_PAT }}" | helm registry login registry-1.docker.io -u ${{ secrets.DH_USER }} --password-stdin
+
+      - name: Downloading  ${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }} images
+        run: |
+          VERSION="${{needs.get-version.outputs.version}}"
+        
+          docker pull ${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION-arm64
+          docker pull ${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION-amd64
+          docker images --all
+
+      - name: Push manifest
+        run: |
+          docker manifest create "${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION" \
+          --amend  "${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION-arm64" \
+          --amend  "${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION-amd64"
+          docker manifest inspect ${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION
+          docker manifest push ${{ env.DOCKER_IMAGE_PREFIX }}/${{ env.CONTAINER_IMAGE }}:$VERSION
