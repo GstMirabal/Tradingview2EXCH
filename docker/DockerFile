@@ -1,10 +1,10 @@
 FROM python
 
-RUN mkdir -p /opt/connector
+RUN mkdir -p /opt/tradingview2exch
 
-COPY . /opt/connector/
+COPY . /opt/tradingview2exch/
 
-WORKDIR /opt/connector
+WORKDIR /opt/tradingview2exch
 
 RUN pip3 install -r requirements.txt
 
