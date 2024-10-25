@@ -78,10 +78,10 @@ To start this project, follow these steps:
 
 #### 1. Clone the Repository
 
-Use the `git clone` command followed by the repository URL. For example, if the repository URL is `https://github.com/your-username/your-repository.git`, you would enter:
+Use the `git clone` command followed by the repository URL. For example, if the repository URL is `https://github.com/GstMirabal/Tradingview2EXCH`, you would enter:
 
 ```bash
-git clone https://github.com/your-username/your-repository.git
+git clone https://github.com/GstMirabal/Tradingview2EXCH
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
