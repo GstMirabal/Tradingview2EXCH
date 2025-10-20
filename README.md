@@ -102,7 +102,7 @@ To start this project, follow these steps:
 Use `git clone` to download the project files to your local machine:
 
 ```
-git clone [https://github.com/GstMirabal/CryptoBot.git](https://github.com/GstMirabal/CryptoBot.git)
+git clone [https://github.com/GstMirabal/Django-Pro-Template.git](https://github.com/GstMirabal/Django-Pro-Template.git)
 cd CryptoBot
 
 ```
