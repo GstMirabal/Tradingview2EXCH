@@ -1,0 +1,105 @@
+# ==============================================================================
+#                      UNIVERSAL CONFIGURATION TEMPLATE
+# ==============================================================================
+# This file maps environment variables to the Django configuration.
+# The actual values are defined in an .env file.
+# ==============================================================================
+
+
+# ==============================================================================
+#                      PROJECT METADATA
+# ==============================================================================
+[project]
+name = "{$PROJECT_NAME}"
+version = "1.0.0"
+description = "A production-ready Django project template with a professional, secure, and scalable architecture."
+author = "Gustavo Mirabal"
+
+
+# ==============================================================================
+#                       DJANGO SETTINGS
+# ==============================================================================
+[django_settings]
+
+# --- Secret key for Django's security. Its value is defined in the .env file ---
+# It must be unique for each environment and should never be shared.
+DJANGO_SECRET_KEY = "$DJANGO_SECRET_KEY"
+
+# --- Project base path. Optional, used to override the path in environments like Docker ---
+BASE_DIR = "$BASE_DIR"
+
+# --- Enables/disables debug mode. Must be 'True' for development and 'False' for production ---
+DEBUG = "$DEBUG"
+
+# --- Comma-separated list of allowed domains for serving the application ---
+# Example in production: "api.cryptobot.com,www.cryptobot.com"
+ALLOWED_HOSTS = "$ALLOWED_HOSTS"
+
+# --- Comma-separated list of allowed frontend origins to access the API ---
+# Example in production: "https://app.yourname.com"
+CORS_ALLOWED_ORIGINS = "$CORS_ALLOWED_ORIGINS"
+
+# ==============================================================================
+#                       DATABASE COMPONENTS
+# ==============================================================================
+# This section defines the individual components of the database connection.
+# The values are substituted from the .env file.
+# The final DATABASE_URL is then assembled within the settings.py file for maximum control.
+[DB]
+
+# --- Name of the database to be created by Docker and used by Django ---
+POSTGRES_DB = "$POSTGRES_DB"
+
+# --- Username for the database connection ---
+POSTGRES_USER = "$POSTGRES_USER"
+
+# --- Password for the database user. The actual value is a secret in .env ---
+# IMPORTANT: Special characters in the password must be URL-encoded in the .env file.
+POSTGRES_PASSWORD = "$POSTGRES_PASSWORD"
+
+# --- Hostname or IP address of the database server ---
+# For the local Docker setup, this is always 'localhost'.
+POSTGRES_HOST = "$POSTGRES_HOST"
+
+# --- Port on which the database server is listening ---
+# The standard port for PostgreSQL is 5432.
+POSTGRES_PORT = "$POSTGRES_PORT"
+
+# ==============================================================================
+#                       EMAIL SETTINGS
+# ==============================================================================
+# Configuration for sending emails in a production environment (when DEBUG=False).
+# These settings are not used in local development, as Django's console email
+# backend is active. The values are substituted from the .env file.
+[email_settings]
+
+# --- Address of the SMTP server for sending emails ---
+# Example: "smtp.sendgrid.net" or "smtp.gmail.com"
+EMAIL_HOST = "$EMAIL_HOST"
+
+# --- Port for the SMTP server connection ---
+# Port 587 is the standard for secure TLS connections.
+EMAIL_PORT = "$EMAIL_PORT"
+
+# --- Specifies whether to use a secure TLS connection ---
+# This should always be "True" in production for security.
+EMAIL_USE_TLS = "$EMAIL_USE_TLS"
+
+# --- Username for authenticating with the SMTP server ---
+# For services like SendGrid, this is often the string "apikey".
+EMAIL_HOST_USER = "$EMAIL_HOST_USER"
+
+# --- Password or API key for SMTP authentication. This is a secret ---
+# The actual value is defined in the .env file.
+EMAIL_HOST_PASSWORD = "$EMAIL_HOST_PASSWORD"
+
+# ==============================================================================
+#                      PROJECT LOGGING
+# ==============================================================================
+[project_logging]
+# Directory for log files.
+PROJECT_LOGS_DIR = "$PROJECT_LOGS_DIR"
+
+
+
+
