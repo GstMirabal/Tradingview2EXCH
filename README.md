@@ -106,7 +106,7 @@ Use `git clone` to download the project files to your local machine, then naviga
 ```bash
 git clone [https://github.com/GstMirabal/Django-Pro-Template.git](https://github.com/GstMirabal/Django-Pro-Template.git)
 cd Django-Pro-Template
-```
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
