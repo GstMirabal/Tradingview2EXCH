@@ -48,7 +48,7 @@ db.sqlite3-journal
 # The leading '/' ensures we only ignore these folders at the project root.
 /backend/staticfiles/
 /backend/mediafiles/
-/logs/
+/backend/logs/
 
 # ==============================================================================
 #                      Docker Specific
