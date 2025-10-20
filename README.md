@@ -19,12 +19,12 @@
 
 <br />
 <br />
-<a href="https://github.com/GstMirabal/CryptoBot"><strong>Explore the docs »</strong></a>
+<a href="https://github.com/GstMirabal/Django-Pro-Template"><strong>Explore the docs »</strong></a>
 <br />
 ·
-<a href="https://github.com/GstMirabal/CryptoBot/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+<a href="https://github.com/GstMirabal/Django-Pro-Template/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
 ·
-<a href="https://github.com/GstMirabal/CryptoBot/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+<a href="https://github.com/GstMirabal/Django-Pro-Template/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
 </p>
 
 <!-- TABLE OF CONTENTS -->
@@ -223,11 +223,11 @@ BASE_DIR=
 DEBUG="True"
 
 # ALLOWED_HOSTS: Comma-separated list of hosts allowed for development.
-# In production, this should be your actual domain(s) (e.g., 'api.cryptobot.com').
+# In production, this should be your actual domain(s) (e.g., 'api.Django-Pro-Template.com').
 ALLOWED_HOSTS="localhost,127.0.0.1"
 
 # CORS_ALLOWED_ORIGINS: Comma-separated list of frontend origins allowed in development.
-# In production, this should be your frontend's domain (e.g., 'https://app.cryptobot.com').
+# In production, this should be your frontend's domain (e.g., 'https://app.Django-Pro-Template.com').
 CORS_ALLOWED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000"
 
 
@@ -276,7 +276,7 @@ EMAIL_HOST_PASSWORD=""
 
 ### 1.1 Environment Variable Descriptions
 
-This section explains the required environment variables for the CryptoBot project, as defined in the `.env.example` file.
+This section explains the required environment variables for the Django-Pro-Template project, as defined in the `.env.example` file.
 
 #### Project Metadata
 
@@ -377,7 +377,7 @@ BASE_DIR = "$BASE_DIR"
 DEBUG = "$DEBUG"
 
 # --- Comma-separated list of allowed domains for serving the application ---
-# Example in production: "api.cryptobot.com,www.cryptobot.com"
+# Example in production: "api.Django-Pro-Template.com,www.Django-Pro-Template.com"
 ALLOWED_HOSTS = "$ALLOWED_HOSTS"
 
 # --- Comma-separated list of allowed frontend origins to access the API ---
@@ -443,7 +443,7 @@ Suggestion 1: Add a verification step. This gives the user immediate feedback th
  docker ps
 ```
 
-You should see a container named cryptobot_db (or the name you configured) in the list with the status Up.
+You should see a container named Django-Pro-Template_db (or the name you configured) in the list with the status Up.
 
 3. Apply Database MigrationsOnce the database container is running, the next step is to create the internal table structure (the schema) that the Django application requires.Navigate to the backend directory:
 
@@ -580,22 +580,22 @@ gst.mirabal@gmail.com
 - GitHub: [@GstMirabal](https://github.com/GstMirabal)
 - Twitter: [@GstMirabal](https://x.com/gst_mirabal)
 
-Project Link: [https://github.com/GstMirabal/CryptoBot](https://github.com/GstMirabal/CryptoBot)
+Project Link: [https://github.com/GstMirabal/Django-Pro-Template](https://github.com/GstMirabal/Django-Pro-Template)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/GstMirabal/CryptoBot.svg?style=for-the-badge
-[contributors-url]: https://github.com/GstMirabal/CryptoBot/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/GstMirabal/CryptoBot.svg?style=for-the-badge
-[forks-url]: https://github.com/GstMirabal/CryptoBot/network/members
-[stars-shield]: https://img.shields.io/github/stars/GstMirabal/CryptoBot.svg?style=for-the-badge
-[stars-url]: https://github.com/GstMirabal/CryptoBot/stargazers
-[issues-shield]: https://img.shields.io/github/issues/GstMirabal/CryptoBot.svg?style=for-the-badge
-[issues-url]: https://github.com/GstMirabal/CryptoBot/issues
-[license-shield]: https://img.shields.io/github/license/GstMirabal/CryptoBot.svg?style=for-the-badge
-[license-url]: https://github.com/GstMirabal/CryptoBot/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/GstMirabal/Django-Pro-Template.svg?style=for-the-badge
+[contributors-url]: https://github.com/GstMirabal/Django-Pro-Template/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/GstMirabal/Django-Pro-Template.svg?style=for-the-badge
+[forks-url]: https://github.com/GstMirabal/Django-Pro-Template/network/members
+[stars-shield]: https://img.shields.io/github/stars/GstMirabal/Django-Pro-Template.svg?style=for-the-badge
+[stars-url]: https://github.com/GstMirabal/Django-Pro-Template/stargazers
+[issues-shield]: https://img.shields.io/github/issues/GstMirabal/Django-Pro-Template.svg?style=for-the-badge
+[issues-url]: https://github.com/GstMirabal/Django-Pro-Template/issues
+[license-shield]: https://img.shields.io/github/license/GstMirabal/Django-Pro-Template.svg?style=for-the-badge
+[license-url]: https://github.com/GstMirabal/Django-Pro-Template/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/gstmirabal
 [Python.png]: https://www.python.org/static/community_logos/python-powered-w-100x40.png
