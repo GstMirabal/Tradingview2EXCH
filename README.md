@@ -238,10 +238,10 @@ CORS_ALLOWED_ORIGINS="http://localhost:3000,http://127.0.0.1:3000"
 # Django (via config.toml) to CONNECT to it.
 
 # Choose a name for your local development database.
-POSTGRES_DB=your_db_name
+POSTGRES_DB="your_db_name"
 
 # Choose a username for your local database.
-POSTGRES_USER=your_db_user
+POSTGRES_USER="your_db_user"
 
 # Choose a secure password for your local database. This is a secret.
 # IMPORTANT: If your password contains special characters like !, @, #, etc.,
