@@ -99,14 +99,12 @@ To start this project, follow these steps:
 
 ### 1. Clone the Repository
 
-### 1. Clone the Repository
-
 Use `git clone` to download the project files to your local machine, then navigate into the newly created directory:
 
 ```bash
-git clone [https://github.com/GstMirabal/Django-Pro-Template.git](https://github.com/GstMirabal/Django-Pro-Template.git)
+git clone https://github.com/GstMirabal/Django-Pro-Template.git
 cd Django-Pro-Template
-
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
