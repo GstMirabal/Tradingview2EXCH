@@ -1,7 +1,6 @@
-"""
-==============================================================================
+"""==============================================================================
 
-          PROFESSIONAL DJANGO PROJECT SETTINGS TEMPLATE
+          PROFESSIONAL DJANGO PROJECT SETTINGS TEMPLATE.
 
 This file provides a robust, secure, and production-ready Django configuration.
 It is designed as a generic foundation for any professional project, covering:
@@ -23,31 +22,33 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 # --- Required imports at the top of the file ---
-import os
 from pathlib import Path
+from typing import Any, override
 import envtoml
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from django.core.exceptions import ImproperlyConfigured
 import dj_database_url
 
 
-# ==============================================================================
-# SECTION 1: BASE_DIR, CONFIGURATION PATH, AND ENVIRONMENT LOADING
-# ==============================================================================
-# Reliably establishes the project's root directory (`BASE_DIR`) and loads the
 # main `config.toml` file.
 # ------------------------------------------------------------------------------
-default_base_dir = Path(__file__).resolve().parent.parent.parent
-env_base_dir = os.environ.get('BASE_DIR')
-BASE_DIR = Path(env_base_dir) if env_base_dir else default_base_dir
+# SECTION 1: BASE_DIR, CONFIGURATION PATH, AND ENVIRONMENT LOADING
+import os  # Minimal local import for environment access
+
+default_base_dir: Path = Path(__file__).resolve().parent.parent.parent
+env_base_dir: str | None = os.environ.get('BASE_DIR')
+BASE_DIR: Path = Path(env_base_dir) if env_base_dir else default_base_dir
 config_path = BASE_DIR / 'config.toml'
 
 try:
-    config = envtoml.load(open(config_path))
-except FileNotFoundError:
+    with config_path.open('r', encoding='utf-8') as f:
+        config: Any = envtoml.load(f)
+except FileNotFoundError as e:
     raise ImproperlyConfigured(
-        f"FATAL: The configuration file 'config.toml' was not found. Expected location: {config_path}")
+        f'FATAL: The configuration file "config.toml" was not found. '
+        f'Expected location: {config_path}'
+    ) from e
 
 
 # ==============================================================================
@@ -61,11 +62,12 @@ except FileNotFoundError:
 try:
     SECRET_KEY = config['django_settings']['DJANGO_SECRET_KEY']
     if not SECRET_KEY:
-        raise ValueError("DJANGO_SECRET_KEY must not be empty.")
+        raise ValueError('DJANGO_SECRET_KEY must not be empty.')
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(
-        f"CRITICAL: The DJANGO_SECRET_KEY is missing or empty in your config.toml / .env file. Error: {e}"
-    )
+        'CRITICAL: The DJANGO_SECRET_KEY is missing or empty in your '
+        f'config.toml / .env file. Error: {e}'
+    ) from e
 
 
 # --- 2.2 DEBUG MODE (DEBUG) ---
@@ -92,9 +94,10 @@ else:
 
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured(
-        "CRITICAL: Running in PRODUCTION mode (DEBUG=False) but `ALLOWED_HOSTS` is empty. "
-        "Define it in the `[django_settings]` section of `config.toml`."
-    )
+        'CRITICAL: Running in PRODUCTION mode (DEBUG=False) but '
+        '`ALLOWED_HOSTS` is empty. Define it in the '
+        '`[django_settings]` section of `config.toml`.'
+    ) from None
 
 
 # --- 2.4 ALLOWED ORIGINS FOR CORS (CORS_ALLOWED_ORIGINS) ---
@@ -118,9 +121,10 @@ else:
 
 if not DEBUG and not CORS_ALLOWED_ORIGINS:
     raise ImproperlyConfigured(
-        "CRITICAL: Running in PRODUCTION mode (DEBUG=False) but `CORS_ALLOWED_ORIGINS` is empty. "
-        "Define it in the `[django_settings]` section of `config.toml`."
-    )
+        'CRITICAL: Running in PRODUCTION mode (DEBUG=False) but '
+        '`CORS_ALLOWED_ORIGINS` is empty. Define it in the '
+        '`[django_settings]` section of `config.toml`.'
+    ) from None
 
 
 # ==============================================================================
@@ -240,9 +244,9 @@ try:
     }
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(
-        f"CRITICAL: Database configuration failed. Check the [DB] section in "
-        f"config.toml and .env file. Original error: {e}"
-    )
+        'CRITICAL: Database configuration failed. Check the [DB] section in '
+        f'config.toml and .env file. Original error: {e}'
+    ) from e
 
 
 # ==============================================================================
@@ -253,11 +257,23 @@ except (KeyError, ValueError) as e:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {'min_length': 12}},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        'NAME': 'django.contrib.auth.password_validation.'
+                'UserAttributeSimilarityValidator'
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.'
+                'MinimumLengthValidator',
+        'OPTIONS': {'min_length': 12}
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.'
+                'CommonPasswordValidator'
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.'
+                'NumericPasswordValidator'
+    },
     {'NAME': 'apps.core.validators.PasswordComplexityValidator'},
     {'NAME': 'pwned_passwords_django.validators.PwnedPasswordsValidator'},
 ]
@@ -327,13 +343,14 @@ else:
 
         if not all([EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD]):
             raise ValueError(
-                "EMAIL_HOST, EMAIL_HOST_USER, and EMAIL_HOST_PASSWORD must not be empty in production."
+                'EMAIL_HOST, EMAIL_HOST_USER, and EMAIL_HOST_PASSWORD '
+                'must not be empty in production.'
             )
     except (KeyError, ValueError) as e:
         raise ImproperlyConfigured(
-            f"CRITICAL: Production email configuration failed. Check the [email_settings] "
-            f"section in config.toml and .env. Original error: {e}"
-        )
+            'CRITICAL: Production email configuration failed. Check the '
+            f'[email_settings] section in config.toml and .env. Original error: {e}'
+        ) from e
 
 
 # ==============================================================================
@@ -352,14 +369,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ------------------------------------------------------------------------------
 
 class UTCFormatter(logging.Formatter):
-    """
-    Custom logging formatter to ensure all timestamps are in UTC
-    and follow the ISO 8601 standard.
+    """Custom logging formatter to ensure all timestamps are in UTC.
+
+    Follows the ISO 8601 standard for unambiguous logging across environments.
+
+    Args:
+        record (logging.LogRecord): The log record entry.
+        datefmt (Optional[str]): Format string for the date. Defaults to ISO-8601.
+
+    Returns:
+        str: The ISO-8601 formatted timestamp string in UTC.
     """
 
-    def formatTime(self, record, datefmt=None):
-        dt = datetime.fromtimestamp(record.created, tz=timezone.utc)
-        return dt.strftime(datefmt or "%Y-%m-%dT%H:%M:%SZ")
+    @override
+    def formatTime(self, record: logging.LogRecord, datefmt: str | None = None) -> str:
+        dt = datetime.fromtimestamp(record.created, tz=UTC)
+        return dt.strftime(datefmt or '%Y-%m-%dT%H:%M:%SZ')
 
 
 try:
@@ -370,7 +395,9 @@ try:
     else:
         raise ValueError("PROJECT_LOGS_DIR is not defined in config.toml")
 except (KeyError, ValueError) as e:
-    raise ImproperlyConfigured(f"Logging directory setup failed. Error: {e}")
+    raise ImproperlyConfigured(
+        f'Logging directory setup failed. Error: {e}'
+    ) from e
 
 
 LOGGING = {
@@ -385,11 +412,18 @@ LOGGING = {
         },
         'json': {
             '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-            'format': '%(asctime)s %(name)s %(levelname)s %(module)s %(lineno)d %(message)s'
+            'format': (
+                '%(asctime)s %(name)s %(levelname)s %(module)s '
+                '%(lineno)d %(message)s'
+            )
         },
     },
     'handlers': {
-        'console': {'level': 'DEBUG', 'class': 'logging.StreamHandler', 'formatter': 'simple'},
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
         'project_log_file': {
             'level': 'DEBUG' if DEBUG else 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
