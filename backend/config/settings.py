@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any, override
 import envtoml
 import logging
+logger = logging.getLogger('django')
 from datetime import datetime, UTC
 from django.core.exceptions import ImproperlyConfigured
 import dj_database_url
@@ -164,9 +165,13 @@ INSTALLED_APPS = [
     # Third-Party Apps
     'corsheaders',
     'csp',
+    'rest_framework',
+    'drf_yasg',
 
     # Local Project Apps
     'apps.core',
+    'apps.Webhook_Receiver',
+    'apps.Binance_Connector',
 ]
 
 
@@ -222,26 +227,42 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Docs: https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 # ------------------------------------------------------------------------------
 try:
-    db_components = config['DB']
-    db_user = db_components.get('POSTGRES_USER')
-    db_password = db_components.get('POSTGRES_PASSWORD')
-    db_host = db_components.get('POSTGRES_HOST')
-    db_port = db_components.get('POSTGRES_PORT')
-    db_name = db_components.get('POSTGRES_DB')
+    db_components = config.get('DB', {})
+    
+    # Check if we should use SQLite (explicitly or as fallback)
+    use_sqlite = db_components.get('USE_SQLITE', True)
+    
+    if use_sqlite:
+        sqlite_db_name = db_components.get('SQLITE_NAME', 'db.sqlite3')
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / sqlite_db_name,
+            }
+        }
+        logger.info(f"Using SQLite database at {BASE_DIR / sqlite_db_name}")
+    else:
+        db_user = db_components.get('POSTGRES_USER')
+        db_password = db_components.get('POSTGRES_PASSWORD')
+        db_host = db_components.get('POSTGRES_HOST')
+        db_port = db_components.get('POSTGRES_PORT')
+        db_name = db_components.get('POSTGRES_DB')
 
-    if not all([db_user, db_password, db_host, db_port, db_name]):
-        raise ValueError(
-            "One or more required database components are missing.")
+        if not all([db_user, db_password, db_host, db_port, db_name]):
+            raise ValueError(
+                "One or more required database components are missing for Postgres.")
 
-    database_url = f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        database_url = f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=database_url,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=database_url,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+        logger.info(f"Using Postgres database at {db_host}")
+
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(
         'CRITICAL: Database configuration failed. Check the [DB] section in '

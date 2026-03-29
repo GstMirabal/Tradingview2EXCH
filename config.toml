@@ -34,6 +34,8 @@ DEBUG = "$DEBUG"
 # --- Comma-separated list of allowed domains for serving the application ---
 # Example in production: "api.cryptobot.com,www.cryptobot.com"
 ALLOWED_HOSTS = "$ALLOWED_HOSTS"
+LOCAL_HOST = "$LOCAL_HOST"
+WEBHOOK_PASSPHRASE = "$WEBHOOK_PASSPHRASE"
 
 # --- Comma-separated list of allowed frontend origins to access the API ---
 # Example in production: "https://app.yourname.com"
@@ -103,3 +105,10 @@ PROJECT_LOGS_DIR = "$PROJECT_LOGS_DIR"
 
 
 
+
+# ==============================================================================
+#                       BINANCE SETTINGS
+# ==============================================================================
+[binance]
+API_KEY = "$API_KEY"
+API_SECRET = "$API_SECRET"
