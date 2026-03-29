@@ -63,6 +63,7 @@ db.sqlite3-journal
 
 # macOS
 .DS_Store
+config.toml
 
 # VS Code
 .vscode/

@@ -8,8 +8,8 @@
 #
 # ==============================================================================
 
-# --- Required Imports ---
 import re
+from typing import Any
 from django.core.exceptions import ValidationError
 
 # ------------------------------------------------------------------------------
@@ -18,10 +18,9 @@ from django.core.exceptions import ValidationError
 
 
 class PasswordComplexityValidator:
-    """
-    A custom password validator that ensures a password meets industry-standard
-    complexity requirements.
+    """A custom password validator.
 
+    Ensures a password meets industry-standard complexity requirements.
     This class is designed to be used within Django's `AUTH_PASSWORD_VALIDATORS`
     setting.
 
@@ -32,23 +31,21 @@ class PasswordComplexityValidator:
       - Must contain at least one special character (e.g., !, @, #, $, _, etc.).
     """
 
-    def validate(self, password, user=None):
-        """
-        Runs the validation logic against the provided password.
+    def validate(self, password: str, user: Any | None = None) -> None:  # noqa: ANN401
+        """Runs the validation logic against the provided password.
 
         This method is called automatically by the Django framework during form
         validation (e.g., user creation, password change).
 
         Args:
             password (str): The password string to validate.
-            user: The user instance (optional, not used here but part of the
-                  required signature for Django validators).
+            user (Optional[Any]): The user instance (optional, not used here but
+                                  part of the required signature for Django validators).
 
         Raises:
             ValidationError: If the password fails to meet any of the defined
                              complexity rules.
         """
-
         # --- Rule 1: Check for the presence of at least one uppercase letter ---
         # The pattern [A-Z] searches for any character in the range from A to Z.
         if not re.search(r'[A-Z]', password):
@@ -75,18 +72,17 @@ class PasswordComplexityValidator:
 
         # --- Rule 4: Check for the presence of at least one special symbol ---
         # The pattern [\W_] is a careful construction:
-        #   \W : Searches for any character that is NOT alphanumeric (a letter or number).
-        #   _  : The underscore is an exception to \W, so we add it explicitly.
-        #   [] : The character set brackets mean "any character that is either \W or _".
+        #   \W : Searches for any character that is NOT alphanumeric.
+        #   _  : The underscore is an exception to \W, added explicitly.
+        #   [] : The character brackets mean "any character of \W or _".
         if not re.search(r'[\W_]', password):
             raise ValidationError(
                 'The password must contain at least one special character.',
                 code='password_no_symbol',
             )
 
-    def get_help_text(self):
-        """
-        Provides a user-friendly help text.
+    def get_help_text(self) -> str:
+        """Provides a user-friendly help text.
 
         This method is called by Django to display the password requirements
         in forms, guiding the user before they type.

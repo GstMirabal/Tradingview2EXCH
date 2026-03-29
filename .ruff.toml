@@ -1,0 +1,19 @@
+# .ruff.toml - Enforcement for .agents compliance
+target-version = "py312"
+line-length = 88
+exclude = [".agents", "venv", "__pycache__"]
+
+[lint]
+# N: Pep8-naming, D: pydocstyle (Google), UP: pyupgrade, ANN: flake8-annotations
+# BLE: flake8-blind-except, FBT: flake8-boolean-trap
+select = ["E", "F", "W", "N", "D", "UP", "ANN", "BLE", "FBT", "B", "C4", "SIM", "PIE"]
+ignore = ["D100", "D104", "D106"]
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
