@@ -1,0 +1,13 @@
+{
+    "symbol": "BTCUSDT",
+    "exchange": "BINANCE",
+    "time": "2024-05-30T11:25:53Z",
+    "interval": "30",
+    "size": "0.00015",
+    "side": "BUY",
+    "price": "58226.21",
+    "orderId": "BFP1",
+    "marketPosition": "0.00363",
+    "marketPrevPosition": "0.00338",
+    "type": "MARKET"
+}
