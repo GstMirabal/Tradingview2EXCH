@@ -11,9 +11,17 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RenameModel(old_name='webhook', new_name='TempWebhookCasingFix'),
         migrations.RenameModel(old_name='TempWebhookCasingFix', new_name='Webhook'),
-        migrations.RenameField(model_name='Webhook', old_name='orderId', new_name='order_id'),
-        migrations.RenameField(model_name='Webhook', old_name='marketPosition', new_name='market_position'),
-        migrations.RenameField(model_name='Webhook', old_name='marketPrevPosition', new_name='market_prev_position'),
+        migrations.RenameField(
+            model_name='Webhook', old_name='orderId', new_name='order_id'
+        ),
+        migrations.RenameField(
+            model_name='Webhook', old_name='marketPosition', new_name='market_position'
+        ),
+        migrations.RenameField(
+            model_name='Webhook',
+            old_name='marketPrevPosition',
+            new_name='market_prev_position',
+        ),
         migrations.AlterField(
             model_name='Webhook',
             name='order_id',

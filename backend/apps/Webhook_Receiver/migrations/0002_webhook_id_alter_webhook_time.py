@@ -4,6 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """Auto-generated schema migration."""
 
     dependencies = [
         ('Webhook_Receiver', '0001_initial'),
@@ -13,7 +14,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='webhook',
             name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+            ),
         ),
         migrations.AlterField(
             model_name='webhook',

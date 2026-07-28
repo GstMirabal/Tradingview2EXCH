@@ -1,5 +1,9 @@
 <div align="center">
 
+<!-- BANNER_START -->
+<img src="docs/assets/logo/project_banner.svg" alt="Tradingview2EXCH banner" width="100%">
+<!-- BANNER_END -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -14,9 +18,9 @@
 <h3 align="center">Tradingview To EXCH API</h3>
 
 <p align="center">
-  Professional bridge REST API between TradingView webhooks and Binance Exchange.
+  Django REST bridge between TradingView webhook alerts and the Binance API.
 <br /><br />
-<a href="https://github.com/GstMirabal/Tradingview2EXCH"><strong>Explore the docs »</strong></a>
+<a href="docs/0_SYSTEM_OVERVIEW.md"><strong>Explore the docs »</strong></a>
 <br />
 ·
 <a href="https://github.com/GstMirabal/Tradingview2EXCH/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
@@ -37,9 +41,12 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation & Configuration</a></li>
+        <li><a href="#running-with-docker">Running with Docker</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#testing">Testing</a></li>
+    <li><a href="#governance--architecture-docs">Governance & Architecture Docs</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -48,21 +55,21 @@
 
 ## About The Project
 
-This project provides a robust, production-ready solution to automate trading strategies by receiving TradingView alerts and executing corresponding orders on Binance. Built with a modular Django architecture, it features enhanced security (HSTS, CSP, Passphrase validation), real-time logging, and professional configuration management via TOML and environment variables.
+This project receives TradingView alerts over a passphrase-gated webhook and executes the corresponding order on Binance. It's a single Django project (`backend/`) with a Service Layer wrapping the `binance-connector` SDK, security-hardened settings, and a SQLite database.
 
 ### Key Features:
-- **Modular Structure**: Discovered and isolated apps for webhooks and exchange interaction.
-- **Service Layer Architecture**: Decoupled business logic for clean maintenance and testing.
-- **Enhanced Security**: Passphrase-protected endpoints and strict environment separation.
-- **Industrial Logging**: Configurable JSON/Text logs with rotation.
-- **Auto-Doc**: Integrated Swagger/Redoc UI for API management.
+- **Modular Structure**: separate apps for webhook intake (`Webhook_Receiver`) and Binance execution (`Binance_Connector`).
+- **Service Layer Architecture**: order execution logic lives in `BinanceService`, decoupled from the views.
+- **Security**: constant-time passphrase check, `IsAdminUser`-gated direct order endpoint, CSP/HSTS/CORS headers, idempotent webhook processing (a repeated `order_id` is rejected, never re-executed).
+- **Structured Logging**: configurable JSON/text logs with rotation.
+- **Auto-Doc**: Swagger/Redoc UI, served only when `DEBUG=True`.
 
 ### Built With
 
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Binance](https://img.shields.io/badge/Binance-F3BA2F?style=for-the-badge&logo=binance&logoColor=black)](https://www.binance.com/)
-[![TOML](https://img.shields.io/badge/TOML-9C4121?style=for-the-badge&logo=toml&logoColor=white)](https://toml.io/)
+[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -83,11 +90,12 @@ This project provides a robust, production-ready solution to automate trading st
    ```
 
 2. **Configure Environment Variables**
-   - Copy `.env.example` to `.env`.
-   - Fill in:
-     - `DJANGO_SECRET_KEY`: Use a strong random key.
-     - `WEBHOOK_PASSPHRASE`: A secret string to validate incoming webhooks.
-     - `API_KEY` & `API_SECRET`: Your Binance credentials.
+   - Copy `.env.example` to `.env` and `config.toml.example` to `config.toml`.
+   - Fill in `.env`:
+     - `DJANGO_SECRET_KEY`: a freshly generated key (`python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`).
+     - `WEBHOOK_PASSPHRASE`: a secret string to validate incoming webhooks.
+     - `API_KEY` / `API_SECRET`: your Binance credentials.
+   - The database is SQLite only — `USE_SQLITE`/`SQLITE_NAME` control where the file lives; there is no Postgres/MySQL support.
 
 3. **Install Dependencies**
    ```bash
@@ -104,13 +112,26 @@ This project provides a robust, production-ready solution to automate trading st
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Running with Docker
+
+`docker-compose.yml` defines a single `web` service (SQLite needs no separate database container):
+
+```bash
+docker-compose up --build
+```
+
+The SQLite file persists in the `sqlite_data` named volume across `docker-compose down`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Usage
 
-The API provides two main endpoints for automation:
+The API provides two Binance-facing endpoints, plus a status check:
 
 ### 1. Webhook Receiver
 - **Endpoint**: `POST /webhook-receiver/webhook/`
-- **Security**: Requires a `passphrase` field in the JSON body matching your `.env` configuration.
+- **Security**: requires a `passphrase` field in the JSON body matching your `.env` configuration.
+- **Idempotency**: a repeated `order_id` is rejected (`400`) rather than executed twice.
 - **Example Payload**:
   ```json
   {
@@ -119,37 +140,53 @@ The API provides two main endpoints for automation:
     "side": "BUY",
     "type": "MARKET",
     "size": "0.001",
-    "exchange": "BINANCE"
+    "exchange": "BINANCE",
+    "time": "{{time}}",
+    "interval": "{{interval}}",
+    "price": "{{close}}",
+    "order_id": "TV_ALERT_1",
+    "market_position": "{{strategy.market_position_size}}",
+    "market_prev_position": "{{strategy.prev_market_position_size}}"
   }
   ```
 
 #### How to Configure in TradingView:
-1.  **Alert Message**: Use the following structure in your TradingView alert's "Message" field:
-    ```json
-    {
-      "passphrase": "your_configured_passphrase_here",
-      "symbol": "{{ticker}}",
-      "side": "BUY",
-      "type": "MARKET",
-      "size": "0.001",
-      "exchange": "BINANCE",
-      "time": "{{time}}",
-      "interval": "{{interval}}",
-      "price": "{{close}}",
-      "orderId": "TV_ALERT_1"
-    }
-    ```
-2.  **Webhook URL**: Set your alert's Webhook URL to `http://your-server-ip:8000/webhook-receiver/webhook/`.
-3.  **Variable Placeholder**: Notice the use of TradingView placeholders like `{{ticker}}`, `{{time}}`, and `{{close}}` to automate the data capture.
+1. **Alert Message**: use the payload above as your TradingView alert's "Message" field, substituting the placeholders.
+2. **Webhook URL**: set your alert's Webhook URL to `http://your-server-ip:8000/webhook-receiver/webhook/`.
 
 ### 2. Binance Connector (Internal/Direct)
 - **Endpoint**: `POST /binance-connector/binanceParams/`
-- **Purpose**: Direct order submission for internal tools.
+- **Security**: requires an authenticated Django staff session (`IsAdminUser`) — this is an internal tool, not part of the public webhook flow.
+- **Purpose**: direct order submission outside the TradingView flow.
 
-### 3. API Documentation
-Access the interactive documentation at:
+### 3. Status Check
+- **Endpoint**: `GET /binance-connector/status/` (also `IsAdminUser`) — returns Binance system status and account assets.
+
+### 4. API Documentation
+When running with `DEBUG=True`:
 - Swagger: `http://localhost:8000/swagger/`
 - Redoc: `http://localhost:8000/redoc/`
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Testing
+
+Run the full test suite from inside `backend/` (Django's bare `manage.py test` discovers relative to the current directory):
+
+```bash
+cd backend
+python manage.py test
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Governance & Architecture Docs
+
+This project is governed by the [`.agents`](https://github.com/GstMirabal/.agents) pipeline. For a deeper reference beyond this README:
+- [`docs/0_SYSTEM_OVERVIEW.md`](docs/0_SYSTEM_OVERVIEW.md) — architecture entry point.
+- [`docs/architecture/`](docs/architecture/) — per-module Blueprints (`CORE`, `BINANCE_CONNECTOR`, `WEBHOOK_RECEIVER`).
+- [`docs/decisions/`](docs/decisions/) — ADRs recording architectural decisions.
+- [`CHANGELOG.md`](CHANGELOG.md) — release history.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -193,6 +230,6 @@ Project Link: [https://github.com/GstMirabal/Tradingview2EXCH](https://github.co
 [issues-shield]: https://img.shields.io/github/issues/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
 [issues-url]: https://github.com/GstMirabal/Tradingview2EXCH/issues
 [license-shield]: https://img.shields.io/github/license/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
-[license-url]: https://github.com/GstMirabal/Tradingview2EXCH/blob/master/LICENSE.txt
+[license-url]: https://github.com/GstMirabal/Tradingview2EXCH/blob/main/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/gstmirabal/

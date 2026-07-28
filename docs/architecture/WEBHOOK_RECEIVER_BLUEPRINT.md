@@ -1,9 +1,9 @@
 # Blueprint: WEBHOOK_RECEIVER
 **File**: `docs/architecture/WEBHOOK_RECEIVER_BLUEPRINT.md` (RA-06 Option B naming)
-**Status**: `DRAFT`
+**Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #000
-**Last Audit Date**: 2026-07-27
+**Last Audit Sprint**: #001
+**Last Audit Date**: 2026-07-28
 **Last Audit Commit SHA**: 9fad6e6
 
 ---
@@ -38,7 +38,7 @@ Data model (summary only):
 1. Client sends `POST /webhook-receiver/webhook/` with `symbol`, `exchange`, `time`, `interval`, `size`, `side`, `price`, `order_id`, `market_position`, `market_prev_position`, `type`.
 2. `HasWebhookPassphrase.has_permission` (owned by `apps.core`) denies the request if the method is not `POST`, if `WEBHOOK_PASSPHRASE` is not configured (`config.toml`'s `[django_settings]` section), or if the request body's `passphrase` field does not match the configured value (constant-time comparison).
 3. `WebhookSerializer` validates the payload; `validate_exchange` accepts `'BINANCE'` case-insensitively.
-4. `WebhookReceivedView.post()` persists the validated record via `serializer.save()`. A duplicate `order_id` raises `IntegrityError`, caught and returned as `HTTP 409` — protects against TradingView's webhook-delivery retries placing a duplicate real order.
+4. `WebhookReceivedView.post()` persists the validated record via `serializer.save()`. A duplicate `order_id` fails the serializer's automatic uniqueness check (from `unique=True`) and returns `HTTP 400` before Binance is ever called — protects against TradingView's webhook-delivery retries placing a duplicate real order. A same-`order_id` race between two concurrent requests is caught at the DB level (`IntegrityError` → `HTTP 409`) as a secondary guarantee.
 5. The view calls `apps.Binance_Connector.services.binance_service.execute_order(...)` directly — this does not create or touch a `Binance_Connector.BinanceParams` row; it calls straight into the Service Layer, bypassing `Binance_Connector`'s own model/serializer/view. Only `'BINANCE'` is currently a supported exchange (enforced by the serializer); multi-exchange routing is not implemented.
 6. The Binance response (or a caught `ClientError` / generic `Exception`) is returned to the caller as JSON (`HTTP 201` on success).
 
@@ -52,7 +52,7 @@ Data model (summary only):
 | Only `exchange == 'BINANCE'` (case-insensitive) is routed to order execution | `backend/apps/Webhook_Receiver/serializers.py::validate_exchange` |
 | A `WebhookReceivedView` request never populates `Binance_Connector`'s `BinanceParams` table — the call path goes straight to `BinanceService`, not through `Binance_Connector`'s own view/serializer | `backend/apps/Webhook_Receiver/views.py` (imports `services.binance_service`, never `Binance_Connector.serializers` or `Binance_Connector.models`) |
 | Passphrase validation runs before the request body is deserialized (DRF evaluates `permission_classes` ahead of `post()`) | `backend/apps/Webhook_Receiver/views.py`; `backend/apps/core/permissions.py` |
-| `order_id` is unique — a repeated value is rejected with `HTTP 409`, never a second order execution | `backend/apps/Webhook_Receiver/models.py::Webhook.order_id` |
+| `order_id` is unique — a repeated value is rejected (`HTTP 400` via the serializer, or `HTTP 409` in a concurrent-request race), never a second order execution | `backend/apps/Webhook_Receiver/models.py::Webhook.order_id` |
 
 ## 7. Decisions
 - `docs/decisions/ADR-0001-governance-casing-rename.md`: renamed `webhook`→`Webhook`, `webhookSerializer`→`WebhookSerializer`, `webhookReceived`→`WebhookReceivedView`, `orderId`→`order_id`, `marketPosition`→`market_position`, `marketPrevPosition`→`market_prev_position`, and the `webhook_Received`→`webhook_received` URL name.

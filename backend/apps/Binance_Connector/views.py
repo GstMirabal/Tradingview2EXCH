@@ -26,23 +26,43 @@ class BinanceParamsView(APIView):
     permission_classes = [IsAdminUser]
 
     @swagger_auto_schema(
-        operation_description="Receive data and execute order on Binance",
+        operation_description='Receive data and execute order on Binance',
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'exchange': openapi.Schema(type=openapi.TYPE_STRING, description='Exchange associated with the alert', example='BINANCE'),
-                'symbol': openapi.Schema(type=openapi.TYPE_STRING, description='Symbol associated with the alert', example='BTCUSDT'),
-                'side': openapi.Schema(type=openapi.TYPE_STRING, description='Side associated with the alert (e.g., BUY or SELL)', example='BUY'),
-                'type': openapi.Schema(type=openapi.TYPE_STRING, description='Type of alert', example='MARKET'),
-                'size': openapi.Schema(type=openapi.TYPE_STRING, description='Size associated with the alert', example='0.00015')
-            }
+                'exchange': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='Exchange associated with the alert',
+                    example='BINANCE',
+                ),
+                'symbol': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='Symbol associated with the alert',
+                    example='BTCUSDT',
+                ),
+                'side': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='Side associated with the alert (e.g., BUY or SELL)',
+                    example='BUY',
+                ),
+                'type': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='Type of alert',
+                    example='MARKET',
+                ),
+                'size': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='Size associated with the alert',
+                    example='0.00015',
+                ),
+            },
         ),
         responses={
             200: 'Operation completed successfully',
             400: 'Bad Request',
-            500: 'Internal Server Error'
+            500: 'Internal Server Error',
         },
-        operation_id='Binance Params'
+        operation_id='Binance Params',
     )
     def post(self, request: Request) -> Response:
         """Validate the submitted order parameters and execute them on Binance.
@@ -56,7 +76,7 @@ class BinanceParamsView(APIView):
         """
         serializer = BinanceParamsSerializer(data=request.data)
         if not serializer.is_valid():
-            logger.error(f"Invalid Binance params: {serializer.errors}")
+            logger.error(f'Invalid Binance params: {serializer.errors}')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -67,15 +87,21 @@ class BinanceParamsView(APIView):
                 order_type=serializer.data.get('type'),
                 quantity=serializer.data.get('size'),
             )
-            return Response({'message': 'Order processed successfully', 'response': response}, status=status.HTTP_200_OK)
+            return Response(
+                {'message': 'Order processed successfully', 'response': response},
+                status=status.HTTP_200_OK,
+            )
         except ClientError as e:
             return Response(
-                {'error': f"Binance Client Error: {e.error_message}"},
-                status=status.HTTP_400_BAD_REQUEST
+                {'error': f'Binance Client Error: {e.error_message}'},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        except Exception as e:
-            logger.error(f"Internal server error: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # API boundary: never leak a 500 traceback, always log + respond JSON.
+        except Exception as e:  # noqa: BLE001
+            logger.error(f'Internal server error: {str(e)}')
+            return Response(
+                {'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class BinanceStatusView(APIView):
@@ -84,9 +110,9 @@ class BinanceStatusView(APIView):
     permission_classes = [IsAdminUser]
 
     @swagger_auto_schema(
-        operation_description="Check Binance system status and account assets",
+        operation_description='Check Binance system status and account assets',
         responses={200: 'Status retrieved successfully'},
-        operation_id='Binance Status'
+        operation_id='Binance Status',
     )
     def get(self, request: Request) -> Response:
         """Return Binance system status and account asset information.
@@ -97,7 +123,10 @@ class BinanceStatusView(APIView):
         Returns:
             200 with the combined system status and user assets payload.
         """
-        return Response({
-            'system_status': binance_service.get_system_status(),
-            'user_assets': binance_service.get_user_assets(),
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                'system_status': binance_service.get_system_status(),
+                'user_assets': binance_service.get_user_assets(),
+            },
+            status=status.HTTP_200_OK,
+        )

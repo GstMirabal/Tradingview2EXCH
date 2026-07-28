@@ -22,20 +22,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 # --- Required imports at the top of the file ---
+import logging
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, override
+
 import envtoml
-import logging
-logger = logging.getLogger('django')
-from datetime import datetime, UTC
 from django.core.exceptions import ImproperlyConfigured
 
+logger = logging.getLogger('django')
 
-# main `config.toml` file.
 # ------------------------------------------------------------------------------
 # SECTION 1: BASE_DIR, CONFIGURATION PATH, AND ENVIRONMENT LOADING
-import os  # Minimal local import for environment access
-
 default_base_dir: Path = Path(__file__).resolve().parent.parent.parent
 env_base_dir: str | None = os.environ.get('BASE_DIR')
 BASE_DIR: Path = Path(env_base_dir) if env_base_dir else default_base_dir
@@ -89,8 +88,11 @@ else:
     except KeyError:
         allowed_hosts_str = None
 
-    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(
-        ',') if host.strip()] if allowed_hosts_str else []
+    ALLOWED_HOSTS = (
+        [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+        if allowed_hosts_str
+        else []
+    )
 
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured(
@@ -106,18 +108,24 @@ if not DEBUG and not ALLOWED_HOSTS:
 # ------------------------------------------------------------------------------
 if DEBUG:
     CORS_ALLOWED_ORIGINS = [
-        "http://localhost:3000", "http://localhost:5173", "http://localhost:4200",
-        "http://127.0.0.1:3000", "http://127.0.0.1:5173", "http://127.0.0.1:4200",
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:4200',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:4200',
     ]
 else:
     try:
-        cors_origins_str = config['django_settings'].get(
-            'CORS_ALLOWED_ORIGINS')
+        cors_origins_str = config['django_settings'].get('CORS_ALLOWED_ORIGINS')
     except KeyError:
         cors_origins_str = None
 
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_str.split(
-        ',') if origin.strip()] if cors_origins_str else []
+    CORS_ALLOWED_ORIGINS = (
+        [origin.strip() for origin in cors_origins_str.split(',') if origin.strip()]
+        if cors_origins_str
+        else []
+    )
 
 if not DEBUG and not CORS_ALLOWED_ORIGINS:
     raise ImproperlyConfigured(
@@ -148,8 +156,11 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
     SECURE_REFERRER_POLICY = 'no-referrer'
     SECURE_PERMISSIONS_POLICY = {
-        'geolocation': '()', 'microphone': '()', 'camera': '()',
-        'fullscreen': '()', 'payment': '()',
+        'geolocation': '()',
+        'microphone': '()',
+        'camera': '()',
+        'fullscreen': '()',
+        'payment': '()',
     }
 
 
@@ -161,15 +172,17 @@ if not DEBUG:
 # ------------------------------------------------------------------------------
 INSTALLED_APPS = [
     # Django Core Apps
-    'django.contrib.admin','django.contrib.auth', 'django.contrib.contenttypes',
-    'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
-
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     # Third-Party Apps
     'corsheaders',
     'csp',
     'rest_framework',
     'drf_yasg',
-
     # Local Project Apps
     'apps.core',
     'apps.Webhook_Receiver',
@@ -203,18 +216,20 @@ ROOT_URLCONF = 'config.urls'
 
 # -- 5.3: Template Configuration --
 # ------------------------------------------------------------------------------
-TEMPLATES = [{
-    'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [BASE_DIR / 'templates'],
-    'APP_DIRS': True,
-    'OPTIONS': {
-        'context_processors': [
-            'django.template.context_processors.request',
-            'django.contrib.auth.context_processors.auth',
-            'django.contrib.messages.context_processors.messages',
-        ],
-    },
-}]
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    }
+]
 
 # -- 5.4: Application Server Entry Point --
 # ------------------------------------------------------------------------------
@@ -238,7 +253,7 @@ try:
             'NAME': BASE_DIR / sqlite_db_name,
         }
     }
-    logger.info(f"Using SQLite database at {BASE_DIR / sqlite_db_name}")
+    logger.info(f'Using SQLite database at {BASE_DIR / sqlite_db_name}')
 
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(
@@ -257,21 +272,14 @@ except (KeyError, ValueError) as e:
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.'
-                'UserAttributeSimilarityValidator'
+        'UserAttributeSimilarityValidator'
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'MinimumLengthValidator',
-        'OPTIONS': {'min_length': 12}
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 12},
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'CommonPasswordValidator'
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.'
-                'NumericPasswordValidator'
-    },
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
     {'NAME': 'apps.core.validators.PasswordComplexityValidator'},
     {'NAME': 'pwned_passwords_django.validators.PwnedPasswordsValidator'},
 ]
@@ -358,6 +366,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # https://docs.djangoproject.com/en/5.2/topics/logging/
 # ------------------------------------------------------------------------------
 
+
 class UTCFormatter(logging.Formatter):
     """Custom logging formatter to ensure all timestamps are in UTC.
 
@@ -383,11 +392,9 @@ try:
         logs_dir = Path(logs_dir_str)
         logs_dir.mkdir(parents=True, exist_ok=True)
     else:
-        raise ValueError("PROJECT_LOGS_DIR is not defined in config.toml")
+        raise ValueError('PROJECT_LOGS_DIR is not defined in config.toml')
 except (KeyError, ValueError) as e:
-    raise ImproperlyConfigured(
-        f'Logging directory setup failed. Error: {e}'
-    ) from e
+    raise ImproperlyConfigured(f'Logging directory setup failed. Error: {e}') from e
 
 
 LOGGING = {
@@ -403,16 +410,15 @@ LOGGING = {
         'json': {
             '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
             'format': (
-                '%(asctime)s %(name)s %(levelname)s %(module)s '
-                '%(lineno)d %(message)s'
-            )
+                '%(asctime)s %(name)s %(levelname)s %(module)s %(lineno)d %(message)s'
+            ),
         },
     },
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'simple',
         },
         'project_log_file': {
             'level': 'DEBUG' if DEBUG else 'INFO',

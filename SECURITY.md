@@ -2,20 +2,12 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+This project ships from a single `main` branch — only the latest commit on `main` receives security fixes. There are no maintained release branches.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Please report suspected vulnerabilities privately by emailing **gst.mirabal@gmail.com** rather than opening a public issue. Include:
+- A description of the vulnerability and its potential impact.
+- Steps to reproduce it.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+You should expect an initial response within a few days. Confirmed vulnerabilities will be fixed on `main` and credited in the fix's commit/PR unless you request otherwise.

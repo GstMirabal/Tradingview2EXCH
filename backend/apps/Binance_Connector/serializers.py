@@ -10,9 +10,15 @@ class BinanceParamsSerializer(serializers.ModelSerializer):
         model = BinanceParams
         fields = '__all__'  # Include all fields from the model
         extra_kwargs = {
-            'exchange': {'help_text': 'Field to store the exchange associated with the alert.'},
-            'symbol': {'help_text': 'Field to store the symbol associated with the alert.'},
-            'side': {'help_text': 'Field to store the side associated with the alert (e.g., BUY or SELL).'},
+            'exchange': {
+                'help_text': 'Field to store the exchange associated with the alert.'
+            },
+            'symbol': {
+                'help_text': 'Field to store the symbol associated with the alert.'
+            },
+            'side': {
+                'help_text': 'Field to store the side (BUY or SELL) of the alert.'
+            },
             'type': {'help_text': 'Field to store the type of alert.'},
             'size': {'help_text': 'Field to store the size associated with the alert.'},
         }

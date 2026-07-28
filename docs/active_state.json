@@ -23,8 +23,6 @@
     "backend/apps/core/",
     "backend/apps/Binance_Connector/",
     "backend/apps/Webhook_Receiver/",
-    "Binance_Connector/",
-    "Webhook_Receiver/",
     "docker/DockerFile",
     "docker-compose.yml",
     "config.toml",
@@ -41,8 +39,6 @@
     "CHANGELOG.md",
     ".agents/"
   ],
-  "legacy_flags": {
-    "Binance_Connector/": "dead_legacy_pre_migration_duplicate_unwired_since_6cd4c32",
-    "Webhook_Receiver/": "dead_legacy_pre_migration_duplicate_unwired_since_6cd4c32"
-  }
+  "legacy_flags": {},
+  "sprint_001_note": "Legacy root-level Binance_Connector/, Webhook_Receiver/, tradingview2exch/, and root manage.py (flagged in legacy_flags above during Sprint 000 onboarding) were deleted in Sprint 001 after confirming Docker's entrypoint.sh actually booted the unauthenticated legacy project in production. legacy_flags is now empty — nothing legacy remains."
 }

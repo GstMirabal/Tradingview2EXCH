@@ -4,17 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """Auto-generated schema migration."""
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
             name='binanceParams',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('exchange', models.CharField(max_length=30)),
                 ('symbol', models.CharField(max_length=30)),
                 ('side', models.CharField(max_length=30)),

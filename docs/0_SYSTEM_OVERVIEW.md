@@ -35,8 +35,8 @@ Tradingview2EXCH is a **backend-only Django trading webhook relay**. It receives
 
 Component-level (Level 3) detail is advisory only for this stack: `backend/apps/` currently holds 3 containers (`core`, `Binance_Connector`, `Webhook_Receiver`), under the 5-container safety floor in `rules/documentation_standard.md §2.1` point 6. Per-module `[MODULE]_BLUEPRINT.md` content is out of scope for this scaffold pass — owned by `doc-orchestrator`.
 
-## 3. Known legacy/dead code (flagged, not removed)
-Root-level `Binance_Connector/` and `Webhook_Receiver/` directories (siblings of `backend/`, **not** `backend/apps/Binance_Connector/` and `backend/apps/Webhook_Receiver/`) are pre-migration duplicates left over from commit `6cd4c32` ("migrate to professional Django-Pro template"). They are **not** referenced in `backend/config/settings.py` INSTALLED_APPS nor `backend/config/urls.py` — dead code. They are intentionally left in place (removal is a human decision) but are recorded as `legacy_flags` in `docs/active_state.json` and must never be modeled as active containers.
+## 3. Sprint #001 remediation
+The legacy root-level `Binance_Connector/`, `Webhook_Receiver/`, `tradingview2exch/`, and root `manage.py` flagged at onboarding (Sprint #000) were confirmed to be more than dead code — Docker's `entrypoint.sh` actually resolved to the legacy, unauthenticated `tradingview2exch/` project in production. Sprint #001 deleted all of it, fixed the deploy path to `backend/`, purged a publicly-leaked `SECRET_KEY` from git history, and renamed several identifiers to governance casing (`docs/decisions/ADR-0001-governance-casing-rename.md`). See `docs/walkthroughs/BACKEND_MIGRATION_WALKTHROUGH.md` for the full account.
 
 ## 4. The governance hierarchy
 | Layer | Location | Role |

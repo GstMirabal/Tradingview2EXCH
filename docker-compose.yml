@@ -1,15 +1,20 @@
 services:
-  db:
-    image: postgres:15
+  web:
+    build:
+      context: .
+      dockerfile: docker/DockerFile
     container_name: "${PROJECT_NAME}"
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "8000:8000"
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      # A single-file volume mount is unreliable in Docker unless the file
+      # already exists in the image, so this mounts a directory instead.
+      # Set `SQLITE_NAME = "data/db.sqlite3"` in config.toml so BASE_DIR /
+      # SQLITE_NAME (backend/config/settings.py) resolves inside it — keeps
+      # the DB across `docker-compose down` without shadowing app code.
+      - sqlite_data:/opt/tradingview2exch/data
 
 volumes:
-  postgres_data:
+  sqlite_data:

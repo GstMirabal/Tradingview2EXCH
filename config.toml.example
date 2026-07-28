@@ -39,31 +39,23 @@ ALLOWED_HOSTS = "$ALLOWED_HOSTS"
 # Example in production: "https://app.yourname.com"
 CORS_ALLOWED_ORIGINS = "$CORS_ALLOWED_ORIGINS"
 
+# --- Shared secret TradingView alerts must send in the 'passphrase' field ---
+# Required for the /webhook-receiver/webhook/ endpoint to accept any request.
+WEBHOOK_PASSPHRASE = "$WEBHOOK_PASSPHRASE"
+
 # ==============================================================================
 #                       DATABASE COMPONENTS
 # ==============================================================================
-# This section defines the individual components of the database connection.
-# The values are substituted from the .env file.
-# The final DATABASE_URL is then assembled within the settings.py file for maximum control.
+# This project runs on SQLite only — no Postgres/MySQL support.
 [DB]
 
-# --- Name of the database to be created by Docker and used by Django ---
-POSTGRES_DB = "$POSTGRES_DB"
+# --- Whether to use SQLite. Defaults to true; there is currently no other option ---
+USE_SQLITE = "$USE_SQLITE"
 
-# --- Username for the database connection ---
-POSTGRES_USER = "$POSTGRES_USER"
-
-# --- Password for the database user. The actual value is a secret in .env ---
-# IMPORTANT: Special characters in the password must be URL-encoded in the .env file.
-POSTGRES_PASSWORD = "$POSTGRES_PASSWORD"
-
-# --- Hostname or IP address of the database server ---
-# For the local Docker setup, this is always 'localhost'.
-POSTGRES_HOST = "$POSTGRES_HOST"
-
-# --- Port on which the database server is listening ---
-# The standard port for PostgreSQL is 5432.
-POSTGRES_PORT = "$POSTGRES_PORT"
+# --- Path (relative to BASE_DIR) of the SQLite database file ---
+# For Docker, point this inside the mounted volume, e.g. "data/db.sqlite3",
+# so the database survives a `docker-compose down` — see docker-compose.yml.
+SQLITE_NAME = "$SQLITE_NAME"
 
 # ==============================================================================
 #                       EMAIL SETTINGS
@@ -100,6 +92,12 @@ EMAIL_HOST_PASSWORD = "$EMAIL_HOST_PASSWORD"
 # Directory for log files.
 PROJECT_LOGS_DIR = "$PROJECT_LOGS_DIR"
 
+# ==============================================================================
+#                       BINANCE SETTINGS
+# ==============================================================================
+[binance]
 
-
-
+# --- Your Binance API key/secret (Trading permissions enabled) ---
+# These are secrets. The actual values are defined in the .env file.
+API_KEY = "$API_KEY"
+API_SECRET = "$API_SECRET"

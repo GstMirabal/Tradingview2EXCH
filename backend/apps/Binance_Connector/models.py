@@ -38,4 +38,6 @@ class BinanceParams(models.Model):
         Returns:
             A dash-separated summary of the order parameters.
         """
-        return f"{self.exchange} - {self.symbol} - {self.side} - {self.type} - {self.size}"
+        return (
+            f'{self.exchange} - {self.symbol} - {self.side} - {self.type} - {self.size}'
+        )

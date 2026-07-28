@@ -37,10 +37,14 @@ class BinanceService:
             if not self.api_key or not self.api_secret:
                 logger.error('Binance API credentials missing.')
                 raise ValueError('Binance API credentials missing.')
-            self._client = BinanceClient(self.api_key, self.api_secret, base_url=self.base_url)
+            self._client = BinanceClient(
+                self.api_key, self.api_secret, base_url=self.base_url
+            )
         return self._client
 
-    def execute_order(self, symbol: str, side: str, order_type: str, quantity: str) -> dict[str, Any]:
+    def execute_order(
+        self, symbol: str, side: str, order_type: str, quantity: str
+    ) -> dict[str, Any]:
         """Execute a buy or sell order on Binance.
 
         Uses `new_order_test` in DEBUG mode, and a real order in production.
@@ -66,7 +70,7 @@ class BinanceService:
                 'quantity': quantity,
             }
 
-            logger.info(f"Executing order with params: {params}")
+            logger.info(f'Executing order with params: {params}')
 
             if settings.DEBUG:
                 logger.info('Running in DEBUG mode, using test_order.')
@@ -75,13 +79,15 @@ class BinanceService:
                 logger.info('Running in Production mode, executing REAL order.')
                 response = self.client.new_order(**params)
 
-            logger.info(f"Order completed: {response}")
+            logger.info(f'Order completed: {response}')
             return response
         except ClientError as e:
-            logger.error(f"Binance Client Error: {e.error_message} (Code: {e.error_code})")
+            logger.error(
+                f'Binance Client Error: {e.error_message} (Code: {e.error_code})'
+            )
             raise
         except Exception as e:
-            logger.error(f"Unexpected error in BinanceService: {str(e)}")
+            logger.error(f'Unexpected error in BinanceService: {str(e)}')
             raise
 
     def get_system_status(self) -> dict[str, Any] | None:
@@ -93,7 +99,7 @@ class BinanceService:
         try:
             return self.client.system_status()
         except ClientError as e:
-            logger.error(f"Error checking system status: {e}")
+            logger.error(f'Error checking system status: {e}')
             return None
 
     def get_user_assets(self) -> dict[str, Any] | None:
@@ -105,7 +111,7 @@ class BinanceService:
         try:
             return self.client.user_asset()
         except ClientError as e:
-            logger.error(f"Error getting user assets: {e}")
+            logger.error(f'Error getting user assets: {e}')
             return None
 
 

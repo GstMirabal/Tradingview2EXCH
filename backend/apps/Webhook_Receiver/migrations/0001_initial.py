@@ -4,11 +4,11 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+    """Auto-generated schema migration."""
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
@@ -22,8 +22,14 @@ class Migration(migrations.Migration):
                 ('side', models.CharField(max_length=30)),
                 ('price', models.DecimalField(decimal_places=6, max_digits=12)),
                 ('orderId', models.CharField(max_length=30)),
-                ('marketPosition', models.DecimalField(decimal_places=6, max_digits=12)),
-                ('marketPrevPosition', models.DecimalField(decimal_places=6, max_digits=12)),
+                (
+                    'marketPosition',
+                    models.DecimalField(decimal_places=6, max_digits=12),
+                ),
+                (
+                    'marketPrevPosition',
+                    models.DecimalField(decimal_places=6, max_digits=12),
+                ),
                 ('type', models.CharField(max_length=30)),
             ],
         ),

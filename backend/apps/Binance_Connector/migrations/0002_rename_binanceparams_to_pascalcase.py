@@ -18,6 +18,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameModel(old_name='binanceParams', new_name='TempBinanceParamsCasingFix'),
-        migrations.RenameModel(old_name='TempBinanceParamsCasingFix', new_name='BinanceParams'),
+        migrations.RenameModel(
+            old_name='binanceParams', new_name='TempBinanceParamsCasingFix'
+        ),
+        migrations.RenameModel(
+            old_name='TempBinanceParamsCasingFix', new_name='BinanceParams'
+        ),
     ]

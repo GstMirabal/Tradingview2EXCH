@@ -44,6 +44,8 @@ class Webhook(models.Model):
         Returns:
             A dash-separated summary of the alert fields.
         """
-        return (f"{self.symbol} - {self.exchange} - {self.time} - {self.interval} - {self.size} - "
-                f"{self.side} - {self.price} - {self.order_id} - {self.market_position} - "
-                f"{self.market_prev_position} - {self.type}")
+        return (
+            f'{self.symbol} - {self.exchange} - {self.time} - {self.interval} - '
+            f'{self.size} - {self.side} - {self.price} - {self.order_id} - '
+            f'{self.market_position} - {self.market_prev_position} - {self.type}'
+        )

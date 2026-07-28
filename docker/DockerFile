@@ -1,18 +1,18 @@
-FROM python
+FROM python:3.12-slim
 
-RUN mkdir -p /opt/tradingview2exch
-
-COPY . /opt/tradingview2exch/
+RUN useradd --create-home --shell /bin/bash appuser
 
 WORKDIR /opt/tradingview2exch
 
-RUN pip3 install -r requirements.txt
+COPY requirements.txt entrypoint.sh ./
+RUN pip3 install --no-cache-dir -r requirements.txt \
+    && chmod +x entrypoint.sh
 
-RUN chmod +x entrypoint.sh
+COPY backend/ backend/
 
-RUN rm db.sqlite3 || true
-RUN mkdir db
+RUN chown -R appuser:appuser /opt/tradingview2exch
+USER appuser
 
 EXPOSE 8000
 
-ENTRYPOINT ./entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]

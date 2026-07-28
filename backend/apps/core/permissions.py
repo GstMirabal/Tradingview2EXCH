@@ -35,7 +35,9 @@ class HasWebhookPassphrase(permissions.BasePermission):
         required_passphrase = config['django_settings'].get('WEBHOOK_PASSPHRASE')
 
         if not required_passphrase:
-            logger.warning('WEBHOOK_PASSPHRASE is not configured in config.toml/env. Denying all requests.')
+            logger.warning(
+                'WEBHOOK_PASSPHRASE is not configured. Denying all requests.'
+            )
             return False
 
         provided_passphrase = request.data.get('passphrase')
@@ -43,9 +45,12 @@ class HasWebhookPassphrase(permissions.BasePermission):
         if not isinstance(provided_passphrase, str):
             return False
 
-        # Constant-time comparison to avoid leaking the passphrase via a timing side-channel.
+        # Constant-time comparison avoids leaking the passphrase via timing.
         if hmac.compare_digest(provided_passphrase, required_passphrase):
             return True
 
-        logger.warning(f"Unauthorized access attempt with invalid passphrase from {request.META.get('REMOTE_ADDR')}")
+        remote_addr = request.META.get('REMOTE_ADDR')
+        logger.warning(
+            f'Unauthorized access attempt with invalid passphrase from {remote_addr}'
+        )
         return False
