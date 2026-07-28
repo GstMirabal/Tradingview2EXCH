@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "git-sync-agent": {
+      "command": "/bin/bash",
+      "args": [
+        ".agents/mcp_servers/github_mcp/scripts/start_mcp.sh"
+      ],
+      "env": {},
+      "description": "Git Security and Audit Filter - Git Sync Auditor"
+    },
+    "graphify": {
+      "command": ".agents/venv_skillopt/bin/python",
+      "args": [
+        "-m",
+        "graphify.serve",
+        "graphify-out/graph.json"
+      ],
+      "description": "Graphify Knowledge Graph MCP Server"
+    }
+  }
+}

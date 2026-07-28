@@ -1,0 +1,48 @@
+{
+  "session_id": "topology-mapper-01-sprint000-onboarding",
+  "status": "ACTIVE",
+  "active_layer": "unassigned",
+  "active_app": "global",
+  "current_sprint_id": null,
+  "onboarding": {
+    "scenario": "C",
+    "description": "Mature project, no prior docs, zero prior agentic traces. Full Reverse Engineering executed per .agents/workflows/standardization_workflow.md Phase 6.",
+    "baseline_audit_sprint": "000",
+    "baseline_audit_date": "2026-07-27",
+    "baseline_audit_commit_sha": "9fad6e6",
+    "sprint_note": "No sprint folder formally opened yet. Sprint 000 is reserved as the legacy audit baseline for this onboarding pass; current_sprint_id stays null until the Orchestrator opens docs/sprints/000-.../ in a subsequent pipeline phase."
+  },
+  "code_containers": [
+    {
+      "stack": "backend",
+      "root": "backend/apps/"
+    }
+  ],
+  "topology_map": [
+    "backend/config/",
+    "backend/apps/core/",
+    "backend/apps/Binance_Connector/",
+    "backend/apps/Webhook_Receiver/",
+    "Binance_Connector/",
+    "Webhook_Receiver/",
+    "docker/DockerFile",
+    "docker-compose.yml",
+    "config.toml",
+    "docs/0_SYSTEM_OVERVIEW.md",
+    "docs/active_state.json",
+    "docs/roadmaps/",
+    "docs/sprints/",
+    "docs/architecture/",
+    "docs/walkthroughs/",
+    "docs/contracts/",
+    "docs/decisions/",
+    "docs/guides/",
+    "docs/standards/",
+    "CHANGELOG.md",
+    ".agents/"
+  ],
+  "legacy_flags": {
+    "Binance_Connector/": "dead_legacy_pre_migration_duplicate_unwired_since_6cd4c32",
+    "Webhook_Receiver/": "dead_legacy_pre_migration_duplicate_unwired_since_6cd4c32"
+  }
+}

@@ -1,9 +1,8 @@
 from django.urls import path
-from .views import binanceParams
 
-# Define the URL pattern for the Params view.
+from .views import BinanceParamsView, BinanceStatusView
+
 urlpatterns = [
-    # Maps the URL '/Params/' to the Params view.
-    # When this URL is accessed, the corresponding method (e.g., POST) of the Params view will be executed.
-    path('binanceParams/', binanceParams.as_view(), name='binanceParams'),
+    path('binanceParams/', BinanceParamsView.as_view(), name='binance_params'),
+    path('status/', BinanceStatusView.as_view(), name='binance_status'),
 ]

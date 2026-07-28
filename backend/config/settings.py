@@ -29,7 +29,6 @@ import logging
 logger = logging.getLogger('django')
 from datetime import datetime, UTC
 from django.core.exceptions import ImproperlyConfigured
-import dj_database_url
 
 
 # main `config.toml` file.
@@ -141,7 +140,10 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    CSP_DEFAULT_SRC = ("'self'", )
+    # django-csp>=4.0 reads CONTENT_SECURITY_POLICY (a dict), not the old flat
+    # CSP_* settings — the old style is a hard system-check Error (csp.E001)
+    # on this version, not a warning, and prevents Django from starting.
+    CONTENT_SECURITY_POLICY = {'DIRECTIVES': {'default-src': ["'self'"]}}
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     SECURE_REFERRER_POLICY = 'no-referrer'
@@ -222,46 +224,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # ==============================================================================
 # SECTION 6: DATABASE CONFIGURATION
 # ==============================================================================
-# Assembles the database URL in Python for maximum control, reading components
-# from the config object.
+# This project runs exclusively on SQLite — confirmed against the real
+# db.sqlite3 in use. There is no Postgres/MySQL support; a prior template
+# revision left a Postgres code path here that was never actually adopted.
 # Docs: https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 # ------------------------------------------------------------------------------
 try:
     db_components = config.get('DB', {})
-    
-    # Check if we should use SQLite (explicitly or as fallback)
-    use_sqlite = db_components.get('USE_SQLITE', True)
-    
-    if use_sqlite:
-        sqlite_db_name = db_components.get('SQLITE_NAME', 'db.sqlite3')
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / sqlite_db_name,
-            }
+    sqlite_db_name = db_components.get('SQLITE_NAME', 'db.sqlite3')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / sqlite_db_name,
         }
-        logger.info(f"Using SQLite database at {BASE_DIR / sqlite_db_name}")
-    else:
-        db_user = db_components.get('POSTGRES_USER')
-        db_password = db_components.get('POSTGRES_PASSWORD')
-        db_host = db_components.get('POSTGRES_HOST')
-        db_port = db_components.get('POSTGRES_PORT')
-        db_name = db_components.get('POSTGRES_DB')
-
-        if not all([db_user, db_password, db_host, db_port, db_name]):
-            raise ValueError(
-                "One or more required database components are missing for Postgres.")
-
-        database_url = f"postgres://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=database_url,
-                conn_max_age=600,
-                conn_health_checks=True,
-            )
-        }
-        logger.info(f"Using Postgres database at {db_host}")
+    }
+    logger.info(f"Using SQLite database at {BASE_DIR / sqlite_db_name}")
 
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(
@@ -313,19 +290,11 @@ PASSWORD_HASHERS = [
 # SECTION 8: USER MODEL, INTERNATIONALIZATION, AND FILES
 # ==============================================================================
 
-# -- 8.1: Custom User Model --
-# CRITICAL WARNING: This is arguably the most important setting in a new project.
-# It tells Django to use our custom user model instead of the default one.
-#
-# This line MUST be set *BEFORE* you run the first `python manage.py migrate`.
-# Failure to do so will lock your project into Django's default user model,
-# which is extremely difficult and dangerous to change later. By setting this
-# from the start, we ensure the project is scalable and flexible.
-#
+# -- 8.1: User Model --
+# This project deliberately uses Django's built-in auth.User model, not a
+# custom one — there is no `users` app and none is planned.
 # https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#substituting-a-custom-user-model
 # ------------------------------------------------------------------------------
-# The format is 'app_label.ModelName'.
-#AUTH_USER_MODEL = 'users.User'
 
 # -- 8.2: Internationalization (i18n) --
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -356,11 +325,11 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     try:
         email_config = config['email_settings']
-        EMAIL_HOST = email_config['EMAIL_HOST']
+        EMAIL_HOST: str = email_config['EMAIL_HOST']
         EMAIL_PORT = email_config['EMAIL_PORT']
         EMAIL_USE_TLS = email_config['EMAIL_USE_TLS']
-        EMAIL_HOST_USER = email_config['EMAIL_HOST_USER']
-        EMAIL_HOST_PASSWORD = email_config['EMAIL_HOST_PASSWORD']
+        EMAIL_HOST_USER: str = email_config['EMAIL_HOST_USER']
+        EMAIL_HOST_PASSWORD: str = email_config['EMAIL_HOST_PASSWORD']
 
         if not all([EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD]):
             raise ValueError(

@@ -1,14 +1,13 @@
 from rest_framework import serializers
-from .models import binanceParams
+
+from .models import BinanceParams
 
 
-class binanceParamsserializers(serializers.ModelSerializer):
-    """
-    Serializer for the binanceParams model.
-    """
+class BinanceParamsSerializer(serializers.ModelSerializer):
+    """Serializer for the BinanceParams model."""
 
     class Meta:
-        model = binanceParams
+        model = BinanceParams
         fields = '__all__'  # Include all fields from the model
         extra_kwargs = {
             'exchange': {'help_text': 'Field to store the exchange associated with the alert.'},
@@ -18,19 +17,18 @@ class binanceParamsserializers(serializers.ModelSerializer):
             'size': {'help_text': 'Field to store the size associated with the alert.'},
         }
 
-    def validate_exchange(self, value):
-        """
-        Validate the 'exchange' field to ensure only 'BINANCE' is accepted.
+    def validate_exchange(self, value: str) -> str:
+        """Validate the 'exchange' field to ensure only 'BINANCE' is accepted.
 
         Args:
-            value (str): The value of the exchange field.
+            value: The submitted value of the exchange field, in any case.
 
         Returns:
-            str: The validated value of the exchange field.
+            The validated, uppercased value of the exchange field.
 
         Raises:
             serializers.ValidationError: If the exchange is not 'BINANCE'.
         """
-        if value != 'BINANCE':
-            raise serializers.ValidationError("Exchange is not allowed")
-        return value
+        if value.upper() != 'BINANCE':
+            raise serializers.ValidationError('Exchange is not allowed')
+        return value.upper()

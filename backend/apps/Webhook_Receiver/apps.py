@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class WebhookReceiverConfig(AppConfig):
-    # Specifies the default field type for auto-created primary keys
+    """App configuration for the TradingView webhook intake app."""
+
     default_auto_field = 'django.db.models.BigAutoField'
-    # The name of the application
     name = 'apps.Webhook_Receiver'

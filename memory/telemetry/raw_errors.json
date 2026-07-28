@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2026-07-28T10:00:18.542261",
+    "hook": "on_commit",
+    "type": "COMMIT_MSG_VIOLATION",
+    "details": "Non-conforming message: chore: onboard .agents governance + begin sprint 001 security remediation\n\nOnboa"
+  },
+  {
+    "timestamp": "2026-07-28T10:00:30.605772",
+    "hook": "on_commit",
+    "type": "SECRET_VIOLATION",
+    "details": "secret_sovereignty scrutiny detected vulnerabilities"
+  },
+  {
+    "timestamp": "2026-07-28T10:01:57.156140",
+    "hook": "on_commit",
+    "type": "SECRET_VIOLATION",
+    "details": "secret_sovereignty scrutiny detected vulnerabilities"
+  },
+  {
+    "timestamp": "2026-07-28T10:02:24.475587",
+    "hook": "on_commit",
+    "type": "SECRET_VIOLATION",
+    "details": "secret_sovereignty scrutiny detected vulnerabilities"
+  },
+  {
+    "timestamp": "2026-07-28T10:05:17.553966",
+    "hook": "on_commit",
+    "type": "SECRET_VIOLATION",
+    "details": "secret_sovereignty scrutiny detected vulnerabilities"
+  }
+]

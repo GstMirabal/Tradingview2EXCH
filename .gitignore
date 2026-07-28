@@ -68,3 +68,11 @@ config.toml
 # VS Code
 .vscode/
 settings.json
+
+# .agents Claude Code bridge + graphify output (regenerated locally, never commit)
+/CLAUDE.md
+/.claude/agents/
+/.claude/commands/
+/.claude/skills/
+/.claude/settings.local.json
+/graphify-out/

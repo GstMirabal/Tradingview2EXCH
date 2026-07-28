@@ -1,44 +1,43 @@
 from rest_framework import serializers
-from .models import webhook
+
+from .models import Webhook
 
 
-class webhookSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the webhook model.
-    """
+class WebhookSerializer(serializers.ModelSerializer):
+    """Serializer for the Webhook model."""
+
     # Specify ISO 8601 format for the 'time' field
     time = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ")
 
     class Meta:
-        model = webhook
+        model = Webhook
         fields = '__all__'  # Include all fields from the model
         extra_kwargs = {
             'symbol': {'help_text': 'Field to store the symbol associated with the alert.'},
             'exchange': {'help_text': 'Field to store the exchange associated with the alert.'},
-            'time': {'help_text': 'Field to store the time the alert was generated. Set as the primary key.'},
+            'time': {'help_text': 'Field to store the time the alert was generated.'},
             'interval': {'help_text': 'Field to store the time interval associated with the alert.'},
             'size': {'help_text': 'Field to store the size associated with the alert.'},
             'side': {'help_text': 'Field to store the side associated with the alert (e.g., BUY or SELL).'},
             'price': {'help_text': 'Field to store the price in USDT of the alert.'},
-            'orderId': {'help_text': 'Field to store the order ID associated with the alert.'},
-            'marketPosition': {'help_text': 'Field to store the market position.'},
-            'marketPrevPosition': {'help_text': 'Field to store the previous MARKET position.'},
+            'order_id': {'help_text': 'Field to store the order ID associated with the alert.'},
+            'market_position': {'help_text': 'Field to store the market position.'},
+            'market_prev_position': {'help_text': 'Field to store the previous market position.'},
             'type': {'help_text': 'Field to store the type of alert.'},
         }
 
-    def validate_exchange(self, value):
-        """
-        Validate the 'exchange' field to ensure only 'BINANCE' is accepted.
+    def validate_exchange(self, value: str) -> str:
+        """Validate the 'exchange' field to ensure only 'BINANCE' is accepted.
 
         Args:
-            value (str): The value of the exchange field.
+            value: The submitted value of the exchange field, in any case.
 
         Returns:
-            str: The validated value of the exchange field.
+            The validated, uppercased value of the exchange field.
 
         Raises:
             serializers.ValidationError: If the exchange is not 'BINANCE'.
         """
-        if value != 'BINANCE':
-            raise serializers.ValidationError("Exchange is not allowed.")
-        return value
+        if value.upper() != 'BINANCE':
+            raise serializers.ValidationError('Exchange is not allowed.')
+        return value.upper()

@@ -1,23 +1,29 @@
 import logging
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-from binance.error import ClientError
 
-from .serializers import binanceParamsserializers
+from binance.error import ClientError
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.permissions import IsAdminUser
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .serializers import BinanceParamsSerializer
 from .services import binance_service
 
 logger = logging.getLogger('project')
 
-class binanceParams(APIView):
+
+class BinanceParamsView(APIView):
+    """API view to handle direct Binance order submissions.
+
+    This is an internal/admin tool for submitting orders outside the
+    TradingView webhook flow, so it requires an authenticated staff session
+    rather than the webhook passphrase.
     """
-    API view to handle Binance parameter submissions.
-    """
-    # TODO: In production, change to IsAuthenticated or custom permission
-    permission_classes = [AllowAny]
+
+    permission_classes = [IsAdminUser]
 
     @swagger_auto_schema(
         operation_description="Receive data and execute order on Binance",
@@ -38,18 +44,23 @@ class binanceParams(APIView):
         },
         operation_id='Binance Params'
     )
-    def post(self, request):
+    def post(self, request: Request) -> Response:
+        """Validate the submitted order parameters and execute them on Binance.
+
+        Args:
+            request: The incoming DRF request carrying the order payload.
+
+        Returns:
+            200 with the Binance response on success, 400 on invalid payload
+            or a Binance client error, 500 on an unexpected failure.
         """
-        Receive request to execute a Binance order.
-        """
-        serializer = binanceParamsserializers(data=request.data)
+        serializer = BinanceParamsSerializer(data=request.data)
         if not serializer.is_valid():
             logger.error(f"Invalid Binance params: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             serializer.save()
-            # Use Service Layer to execute order
             response = binance_service.execute_order(
                 symbol=serializer.data.get('symbol'),
                 side=serializer.data.get('side'),
@@ -65,3 +76,28 @@ class binanceParams(APIView):
         except Exception as e:
             logger.error(f"Internal server error: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class BinanceStatusView(APIView):
+    """API view exposing Binance system/account status for operational checks."""
+
+    permission_classes = [IsAdminUser]
+
+    @swagger_auto_schema(
+        operation_description="Check Binance system status and account assets",
+        responses={200: 'Status retrieved successfully'},
+        operation_id='Binance Status'
+    )
+    def get(self, request: Request) -> Response:
+        """Return Binance system status and account asset information.
+
+        Args:
+            request: The incoming DRF request.
+
+        Returns:
+            200 with the combined system status and user assets payload.
+        """
+        return Response({
+            'system_status': binance_service.get_system_status(),
+            'user_assets': binance_service.get_user_assets(),
+        }, status=status.HTTP_200_OK)

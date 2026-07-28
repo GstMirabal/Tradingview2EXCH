@@ -1,10 +1,8 @@
 from django.db import models
 
 
-class binanceParams(models.Model):
-    """
-    A Django model to store parameters related to Binance alerts.
-    """
+class BinanceParams(models.Model):
+    """A Django model to store parameters related to Binance alerts."""
 
     # Field to store the exchange associated with the alert.
     exchange = models.CharField(max_length=30)
@@ -21,18 +19,23 @@ class binanceParams(models.Model):
     # Field to store the size associated with the alert.
     size = models.DecimalField(max_digits=12, decimal_places=6)
 
-    def save(self, *args, **kwargs):
-        """
-        Override the save method to convert all string fields to uppercase before saving.
+    def save(self, *args: object, **kwargs: object) -> None:
+        """Uppercase all string fields before saving.
+
+        Args:
+            *args: Positional arguments forwarded to the parent `save()`.
+            **kwargs: Keyword arguments forwarded to the parent `save()`.
         """
         self.exchange = self.exchange.upper()
         self.symbol = self.symbol.upper()
         self.side = self.side.upper()
         self.type = self.type.upper()
-        super(binanceParams, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
-    def __str__(self):
-        """
-        Return a string representation of the binanceParams instance.
+    def __str__(self) -> str:
+        """Return a human-readable representation of the instance.
+
+        Returns:
+            A dash-separated summary of the order parameters.
         """
         return f"{self.exchange} - {self.symbol} - {self.side} - {self.type} - {self.size}"
