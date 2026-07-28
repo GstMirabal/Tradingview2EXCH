@@ -246,7 +246,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # ------------------------------------------------------------------------------
 try:
     db_components = config.get('DB', {})
-    sqlite_db_name = db_components.get('SQLITE_NAME', 'db.sqlite3')
+    # `or` (not `.get(key, default)`) because envtoml substitutes an unset
+    # $SQLITE_NAME with an empty string rather than omitting the key, so the
+    # dict-default form never actually falls back to 'db.sqlite3'.
+    sqlite_db_name = db_components.get('SQLITE_NAME') or 'db.sqlite3'
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
