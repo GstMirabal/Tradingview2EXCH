@@ -32,7 +32,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](
 
 #### Security
 - `config.toml` and `logs/project.json` were tracked in git despite `.gitignore` — untracked (kept locally).
-- Git history rewritten (`git filter-repo`) to purge the historically-public `SECRET_KEY`. A fresh `SECRET_KEY`/`WEBHOOK_PASSPHRASE` must be set in `.env` — see the sprint close report.
+- **Git history rewritten** (`git filter-repo --path tradingview2exch/settings.py --invert-paths`) to purge the historically-public `SECRET_KEY` from every commit — confirmed via `git log --all -- tradingview2exch/settings.py` returning nothing. Every commit SHA on every local branch changed as a result. A full pre-rewrite bundle backup was taken before running it. `origin` was removed by `git filter-repo` as a safety default (standard behavior) — a force-push to re-establish the remote is a separate, explicitly-confirmed step, not run automatically. A fresh `SECRET_KEY`/`WEBHOOK_PASSPHRASE` must be set in `.env` — see the sprint close report.
 
 ### Added
 - Adopted Token-Optimized Agent Pipeline governance (`.agents` v4.2.1) — onboarding scenario: C (mature project, no prior docs, zero prior agentic traces; Full Reverse Engineering per `standardization_workflow.md` Phase 6). Physical `docs/` topology scaffolded, `docs/active_state.json` seeded as Zero Coordinate, `docs/0_SYSTEM_OVERVIEW.md` materialized. #000
