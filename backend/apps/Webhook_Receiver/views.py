@@ -21,6 +21,7 @@ class WebhookReceivedView(APIView):
     """API view to handle receiving new webhooks from TradingView."""
 
     permission_classes = [HasWebhookPassphrase]
+    throttle_scope = 'webhook'
 
     @swagger_auto_schema(
         operation_description='Receive a new webhook and forward it to Binance',
@@ -87,6 +88,7 @@ class WebhookReceivedView(APIView):
         responses={
             201: 'Webhook successfully processed and sent to exchange',
             400: 'Bad Request (including a duplicate order_id)',
+            409: 'Duplicate order_id (concurrent race at the database level)',
             500: 'Internal Server Error',
         },
         operation_id='Receive Webhook',
@@ -149,5 +151,6 @@ class WebhookReceivedView(APIView):
         except Exception as e:  # noqa: BLE001
             logger.error(f'Internal error processing webhook: {str(e)}')
             return Response(
-                {'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {'error': 'Internal error processing webhook.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

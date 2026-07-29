@@ -4,7 +4,7 @@ RUN useradd --create-home --shell /bin/bash appuser
 
 WORKDIR /opt/tradingview2exch
 
-COPY requirements.txt entrypoint.sh ./
+COPY requirements.txt entrypoint.sh config.toml ./
 RUN pip3 install --no-cache-dir -r requirements.txt \
     && chmod +x entrypoint.sh
 

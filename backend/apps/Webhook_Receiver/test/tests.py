@@ -2,6 +2,7 @@ from decimal import Decimal
 from unittest.mock import Mock, patch
 
 from binance.error import ClientError
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -231,6 +232,34 @@ class WebhookReceivedViewTests(APITestCase):
         response = self._post(self.valid_payload)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertIn('error', response.data)
+
+    @patch(PASSPHRASE_PATCH_TARGET, VALID_PASSPHRASE_CONFIG)
+    @patch(
+        'apps.Binance_Connector.services.binance_service.execute_order',
+        return_value={'msg': 'ok'},
+    )
+    def test_throttling_limits_requests(self, mock_execute_order: Mock) -> None:
+        """A caller exceeding the configured 'webhook' scope rate (20/min) gets 429.
+
+        Uses the real configured rate rather than @override_settings — DRF's
+        SimpleRateThrottle subclasses bind THROTTLE_RATES as a class attribute
+        at import time, so overriding REST_FRAMEWORK in a test doesn't change
+        an already-bound rate. Requires a valid passphrase: DRF's APIView
+        checks permissions before throttles (see `initial()`), so an invalid
+        passphrase would 403 every request before the throttle is ever hit.
+
+        The throttle cache (LocMemCache) is process-global and isn't reset
+        between test methods the way the DB is, so this clears it on both
+        ends to avoid bleeding rate-limit state into other tests.
+        """
+        cache.clear()
+        self.addCleanup(cache.clear)
+        for i in range(20):
+            response = self._post({**self.valid_payload, 'order_id': f'THROTTLE-{i}'})
+            self.assertNotEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+        response = self._post({**self.valid_payload, 'order_id': 'THROTTLE-20'})
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
 @override_settings(

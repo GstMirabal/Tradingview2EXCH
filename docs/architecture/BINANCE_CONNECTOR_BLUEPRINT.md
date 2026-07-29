@@ -2,9 +2,9 @@
 **File**: `docs/architecture/BINANCE_CONNECTOR_BLUEPRINT.md` (RA-06 Option B naming)
 **Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #001
-**Last Audit Date**: 2026-07-28
-**Last Audit Commit SHA**: n/a (git filter-repo rewrote all commit SHAs in this same sprint; audit spans the whole ai-sprint/001-full-remediation branch, see CHANGELOG)
+**Last Audit Sprint**: #002
+**Last Audit Date**: 2026-07-29
+**Last Audit Commit SHA**: pending (updated at end of Sprint 002, see CHANGELOG)
 
 ---
 
@@ -29,7 +29,7 @@ Contracts (formal interfaces this module exposes):
 
 | Interface | Type | Defined in |
 | :--- | :--- | :--- |
-| `POST /binance-connector/binanceParams/` (`BinanceParamsView`) | REST | Not yet published — no `docs/contracts/BINANCE_CONNECTOR_CONTRACT.md` exists at this audit |
+| `POST /binance-connector/binance-params/` (`BinanceParamsView`) | REST | Not yet published — no `docs/contracts/BINANCE_CONNECTOR_CONTRACT.md` exists at this audit |
 | `GET /binance-connector/status/` (`BinanceStatusView`) | REST | Not yet published |
 | `BinanceService.execute_order(symbol, side, order_type, quantity)` | Function (Service Layer) | Not yet published |
 
@@ -37,7 +37,7 @@ Data model (summary only):
 - `BinanceParams`: one submitted order-parameter record — `exchange`, `symbol`, `side`, `type` (all `CharField`, uppercased on `save()`), `size` (`DecimalField`, max_digits=12, decimal_places=6).
 
 ## 4. Runtime View
-1. Client sends `POST /binance-connector/binanceParams/` with `exchange`, `symbol`, `side`, `type`, `size`, authenticated as a Django staff user (`IsAdminUser`).
+1. Client sends `POST /binance-connector/binance-params/` with `exchange`, `symbol`, `side`, `type`, `size`, authenticated as a Django staff user (`IsAdminUser`).
 2. `BinanceParamsSerializer` validates the payload; `validate_exchange` accepts `'BINANCE'` case-insensitively.
 3. `BinanceParamsView.post()` persists the validated record via `serializer.save()`.
 4. The view calls `binance_service.execute_order(...)`. `BinanceService.client` lazily instantiates a `binance.spot.Spot` client from `config['binance']['API_KEY']` / `API_SECRET`, raising `ValueError` if either is missing.

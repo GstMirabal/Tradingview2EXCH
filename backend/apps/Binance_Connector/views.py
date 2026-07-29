@@ -100,7 +100,8 @@ class BinanceParamsView(APIView):
         except Exception as e:  # noqa: BLE001
             logger.error(f'Internal server error: {str(e)}')
             return Response(
-                {'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {'error': 'Internal server error.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 

@@ -2,9 +2,9 @@
 **File**: `docs/architecture/CORE_BLUEPRINT.md` (RA-06 Option B naming)
 **Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #001
-**Last Audit Date**: 2026-07-28
-**Last Audit Commit SHA**: n/a (git filter-repo rewrote all commit SHAs in this same sprint; audit spans the whole ai-sprint/001-full-remediation branch, see CHANGELOG)
+**Last Audit Sprint**: #002
+**Last Audit Date**: 2026-07-29
+**Last Audit Commit SHA**: pending (updated at end of Sprint 002, see CHANGELOG)
 
 ---
 
@@ -36,7 +36,7 @@ Data model (summary only): none. `backend/apps/core/models.py` contains only the
 
 ## 4. Runtime View
 1. Password validation: any Django `User` creation/change path (e.g. `createsuperuser`, `set_password`) triggers `AUTH_PASSWORD_VALIDATORS`, which includes `apps.core.validators.PasswordComplexityValidator`; it raises `ValidationError` if the password lacks an uppercase letter, a lowercase letter, a digit, or a non-alphanumeric symbol (`backend/apps/core/validators.py`).
-2. Webhook authentication: `apps.Webhook_Receiver.views.webhookReceived` declares `permission_classes = [HasWebhookPassphrase]`; on every incoming request, `has_permission` denies non-`POST` methods outright, denies all requests when `config['security']['WEBHOOK_PASSPHRASE']` is unset (logged as a warning), and otherwise compares the request body's `passphrase` field against that configured value (`backend/apps/core/permissions.py`).
+2. Webhook authentication: `apps.Webhook_Receiver.views.WebhookReceivedView` declares `permission_classes = [HasWebhookPassphrase]`; on every incoming request, `has_permission` denies non-`POST` methods outright, denies all requests when `config['django_settings']['WEBHOOK_PASSPHRASE']` is unset (logged as a warning), and otherwise compares the request body's `passphrase` field against that configured value using `hmac.compare_digest` (constant-time, avoids a timing side-channel).
 
 ## 5. Crosscutting Concepts
 - Settings access pattern: `from config.settings import config` — a TOML-backed dict (`config['section'].get('KEY')`), used instead of importing individual Django settings constants directly.
@@ -45,11 +45,10 @@ Data model (summary only): none. `backend/apps/core/models.py` contains only the
 ## 6. Non-negotiable Constraints
 | Constraint | Verification |
 | :--- | :--- |
-| `HasWebhookPassphrase` denies all requests by default when `WEBHOOK_PASSPHRASE` is not configured (fails closed, not open) | `backend/apps/core/permissions.py` lines 21-26 |
-| `HasWebhookPassphrase` only evaluates `POST` requests; any other method is denied | `backend/apps/core/permissions.py` lines 14-16 |
-| `PasswordComplexityValidator` requires uppercase + lowercase + digit + symbol, all four | `backend/apps/core/validators.py` lines 51-82 |
-
-Unconfirmed — verify in a future audit: no dedicated unit test currently targets `PasswordComplexityValidator` or `HasWebhookPassphrase` directly inside `backend/apps/core/tests.py` (that file covers settings smoke-checks, `AUTH_USER_MODEL`, and production security headers only).
+| `HasWebhookPassphrase` denies all requests by default when `WEBHOOK_PASSPHRASE` is not configured (fails closed, not open) | `backend/apps/core/permissions.py::HasWebhookPassphrase.has_permission` |
+| `HasWebhookPassphrase` only evaluates `POST` requests; any other method is denied | `backend/apps/core/permissions.py::HasWebhookPassphrase.has_permission` |
+| Passphrase comparison is constant-time (`hmac.compare_digest`), not `==` | `backend/apps/core/permissions.py::HasWebhookPassphrase.has_permission` |
+| `PasswordComplexityValidator` requires uppercase + lowercase + digit + symbol, all four | `backend/apps/core/validators.py::PasswordComplexityValidator.validate` |
 
 ## 7. Decisions
 No ADR is currently on file for this module.
@@ -57,7 +56,7 @@ No ADR is currently on file for this module.
 ## 8. Glossary
 | Term | Meaning in this module |
 | :--- | :--- |
-| `WEBHOOK_PASSPHRASE` | Shared secret read from `config.toml` (`[security]` section), compared against the `passphrase` field of an incoming webhook POST body. |
+| `WEBHOOK_PASSPHRASE` | Shared secret read from `config.toml`'s `[django_settings]` section, compared against the `passphrase` field of an incoming webhook POST body. |
 | `config` | Module-level TOML-backed dict exposed by `backend/config/settings.py`, read via `config['section'].get('KEY')`. |
 
 ---

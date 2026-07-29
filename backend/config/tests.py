@@ -23,7 +23,7 @@ BASE_CONFIG: dict[str, Any] = {
         'CORS_ALLOWED_ORIGINS': 'https://example.com',
         'WEBHOOK_PASSPHRASE': 'test-passphrase',
     },
-    'DB': {'USE_SQLITE': True, 'SQLITE_NAME': 'db.sqlite3'},
+    'DB': {'SQLITE_NAME': 'db.sqlite3'},
     'project_logging': {'PROJECT_LOGS_DIR': 'backend/logs'},
     'email_settings': {
         'EMAIL_HOST': 'smtp.example.com',

@@ -15,7 +15,6 @@ db.sqlite3-shm
 db.sqlite3-wal
 .env
 .env.*
-config.toml
 logs/
 backend/logs/
 backend/staticfiles/

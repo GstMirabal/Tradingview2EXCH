@@ -95,7 +95,7 @@ This project receives TradingView alerts over a passphrase-gated webhook and exe
      - `DJANGO_SECRET_KEY`: a freshly generated key (`python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`).
      - `WEBHOOK_PASSPHRASE`: a secret string to validate incoming webhooks.
      - `API_KEY` / `API_SECRET`: your Binance credentials.
-   - The database is SQLite only — `USE_SQLITE`/`SQLITE_NAME` control where the file lives; there is no Postgres/MySQL support.
+   - The database is SQLite only — `SQLITE_NAME` controls where the file lives; there is no Postgres/MySQL support.
 
 3. **Install Dependencies**
    ```bash
@@ -155,7 +155,7 @@ The API provides two Binance-facing endpoints, plus a status check:
 2. **Webhook URL**: set your alert's Webhook URL to `http://your-server-ip:8000/webhook-receiver/webhook/`.
 
 ### 2. Binance Connector (Internal/Direct)
-- **Endpoint**: `POST /binance-connector/binanceParams/`
+- **Endpoint**: `POST /binance-connector/binance-params/`
 - **Security**: requires an authenticated Django staff session (`IsAdminUser`) — this is an internal tool, not part of the public webhook flow.
 - **Purpose**: direct order submission outside the TradingView flow.
 

@@ -13,10 +13,10 @@ This configuration serves as a production-ready template that demonstrates a
 deep understanding of Django's operational and security architecture.
 
 For more information on this file, see:
-https://docs.djangoproject.com/en/5.2/topics/settings/
+https://docs.djangoproject.com/en/6.0/topics/settings/
 
 For the full list of settings and their values, see:
-https://docs.djangoproject.com/en/5.2/ref/settings/
+https://docs.djangoproject.com/en/6.0/ref/settings/
 
 ==============================================================================
 """
@@ -56,7 +56,7 @@ except FileNotFoundError as e:
 
 # --- 2.1 SECRET KEY (SECRET_KEY) ---
 # Ensures the application fails immediately if the SECRET_KEY is not configured.
-# Documentation: https://docs.djangoproject.com/en/5.2/ref/settings/#secret-key
+# Documentation: https://docs.djangoproject.com/en/6.0/ref/settings/#secret-key
 # ------------------------------------------------------------------------------
 try:
     SECRET_KEY = config['django_settings']['DJANGO_SECRET_KEY']
@@ -71,14 +71,14 @@ except (KeyError, ValueError) as e:
 
 # --- 2.2 DEBUG MODE (DEBUG) ---
 # SECURITY WARNING: Never run with debug turned on in production!
-# Documentation: https://docs.djangoproject.com/en/5.2/ref/settings/#debug
+# Documentation: https://docs.djangoproject.com/en/6.0/ref/settings/#debug
 # ------------------------------------------------------------------------------
 DEBUG = config['django_settings'].get('DEBUG')
 
 
 # --- 2.3 ALLOWED HOSTS (ALLOWED_HOSTS) ---
 # A critical security measure to prevent HTTP Host Header attacks.
-# Documentation: https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts
+# Documentation: https://docs.djangoproject.com/en/6.0/ref/settings/#allowed-hosts
 # ------------------------------------------------------------------------------
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
@@ -139,7 +139,7 @@ if not DEBUG and not CORS_ALLOWED_ORIGINS:
 # SECTION 3: PRODUCTION-ONLY SECURITY ENHANCEMENTS
 # ==============================================================================
 # Hardens the application when `DEBUG` is False by configuring security headers.
-# Documentation: https://docs.djangoproject.com/en/5.2/topics/security/#security-middleware
+# Documentation: https://docs.djangoproject.com/en/6.0/topics/security/#security-middleware
 # ------------------------------------------------------------------------------
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
@@ -168,7 +168,7 @@ if not DEBUG:
 # SECTION 4: APPLICATION DEFINITION
 # ==============================================================================
 # Informs Django which applications are active. Organized into three tiers.
-# Documentation: https://docs.djangoproject.com/en/5.2/ref/settings/#installed-apps
+# Documentation: https://docs.djangoproject.com/en/6.0/ref/settings/#installed-apps
 # ------------------------------------------------------------------------------
 INSTALLED_APPS = [
     # Django Core Apps
@@ -196,7 +196,7 @@ INSTALLED_APPS = [
 
 # -- 5.1: Middleware --
 # The request/response processing pipeline. Order is critical.
-# Documentation: https://docs.djangoproject.com/en/5.2/ref/middleware/
+# Documentation: https://docs.djangoproject.com/en/6.0/ref/middleware/
 # ------------------------------------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -242,7 +242,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # This project runs exclusively on SQLite — confirmed against the real
 # db.sqlite3 in use. There is no Postgres/MySQL support; a prior template
 # revision left a Postgres code path here that was never actually adopted.
-# Docs: https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# Docs: https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 # ------------------------------------------------------------------------------
 try:
     db_components = config.get('DB', {})
@@ -266,11 +266,26 @@ except (KeyError, ValueError) as e:
 
 
 # ==============================================================================
+# SECTION 6.1: DJANGO REST FRAMEWORK
+# ==============================================================================
+# ScopedRateThrottle only throttles views that declare a `throttle_scope`
+# (WebhookReceivedView) — every other view is unaffected by default.
+# Docs: https://www.django-rest-framework.org/api-guide/throttling/
+# ------------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': ['rest_framework.throttling.ScopedRateThrottle'],
+    'DEFAULT_THROTTLE_RATES': {
+        'webhook': '20/min',
+    },
+}
+
+
+# ==============================================================================
 # SECTION 7: PASSWORD VALIDATION AND HASHING
 # ==============================================================================
 
 # -- 7.1: Password Validators --
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 # ------------------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -288,7 +303,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # -- 7.2: Password Hashers --
-# https://docs.djangoproject.com/en/5.2/topics/auth/passwords/#password-storage
+# https://docs.djangoproject.com/en/6.0/topics/auth/passwords/#password-storage
 # ------------------------------------------------------------------------------
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -304,19 +319,21 @@ PASSWORD_HASHERS = [
 # -- 8.1: User Model --
 # This project deliberately uses Django's built-in auth.User model, not a
 # custom one — there is no `users` app and none is planned.
-# https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#substituting-a-custom-user-model
+# https://docs.djangoproject.com/en/6.0/topics/auth/customizing/#substituting-a-custom-user-model
 # ------------------------------------------------------------------------------
 
 # -- 8.2: Internationalization (i18n) --
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# https://docs.djangoproject.com/en/6.0/topics/i18n/
 # ------------------------------------------------------------------------------
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Europe/Madrid'
+# `or` (not `.get(key, default)`) — see the SQLITE_NAME comment in Section 6:
+# envtoml substitutes an unset $TIME_ZONE with an empty string, not a missing key.
+TIME_ZONE = config['django_settings'].get('TIME_ZONE') or 'UTC'
 USE_I18N = True
 USE_TZ = True  # Saves datetimes in UTC in the DB.
 
 # -- 8.3: Static and Media Files --
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# https://docs.djangoproject.com/en/6.0/howto/static-files/
 # ------------------------------------------------------------------------------
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -328,7 +345,7 @@ MEDIA_ROOT = BASE_DIR / 'mediafiles'
 # SECTION 9: EMAIL CONFIGURATION
 # ==============================================================================
 # Dynamically configures the email backend based on the DEBUG flag.
-# Docs: https://docs.djangoproject.com/en/5.2/topics/email/
+# Docs: https://docs.djangoproject.com/en/6.0/topics/email/
 # ------------------------------------------------------------------------------
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -357,7 +374,7 @@ else:
 # ==============================================================================
 # SECTION 10: DEFAULT PRIMARY KEY FIELD TYPE
 # ==============================================================================
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
 # ------------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -366,7 +383,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # SECTION 11: PROFESSIONAL LOGGING CONFIGURATION
 # ==============================================================================
 # Production-ready logging setup, adaptable to different environments.
-# https://docs.djangoproject.com/en/5.2/topics/logging/
+# https://docs.djangoproject.com/en/6.0/topics/logging/
 # ------------------------------------------------------------------------------
 
 

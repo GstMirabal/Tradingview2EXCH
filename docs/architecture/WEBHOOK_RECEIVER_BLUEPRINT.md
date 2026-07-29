@@ -2,9 +2,9 @@
 **File**: `docs/architecture/WEBHOOK_RECEIVER_BLUEPRINT.md` (RA-06 Option B naming)
 **Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #001
-**Last Audit Date**: 2026-07-28
-**Last Audit Commit SHA**: n/a (git filter-repo rewrote all commit SHAs in this same sprint; audit spans the whole ai-sprint/001-full-remediation branch, see CHANGELOG)
+**Last Audit Sprint**: #002
+**Last Audit Date**: 2026-07-29
+**Last Audit Commit SHA**: pending (updated at end of Sprint 002, see CHANGELOG)
 
 ---
 

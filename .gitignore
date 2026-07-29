@@ -32,8 +32,7 @@ htmlcov/
 *.crt
 *.p12
 
-# config.toml holds only $VAR placeholders (real values live in .env), but it
-# was committed before this rule existed — see the untracking note below.
+# config.toml holds only $VAR placeholders (real values live in .env).
 config.toml
 
 

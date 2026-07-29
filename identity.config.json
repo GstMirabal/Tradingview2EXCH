@@ -1,12 +1,12 @@
 {
-  "owner_name": "",
-  "owner_email": "",
-  "owner_linkedin_url": "",
-  "owner_x_url": "",
+  "owner_name": "Gustavo Mirabal Suarez",
+  "owner_email": "gst.mirabal@gmail.com",
+  "owner_linkedin_url": "https://www.linkedin.com/in/gstmirabal/",
+  "owner_x_url": "https://x.com/gst_mirabal",
   "repo_slug": "GstMirabal/Tradingview2EXCH",
-  "banner_path": "",
-  "governed_by_agents": false,
-  "project_name": "",
-  "project_description": "",
-  "project_hook": ""
+  "banner_path": "docs/assets/logo/project_banner.svg",
+  "governed_by_agents": true,
+  "project_name": "Tradingview2EXCH",
+  "project_description": "A Django REST bridge between TradingView webhook alerts and the Binance API, with a passphrase-gated intake endpoint and a Service Layer wrapping the binance-connector SDK.",
+  "project_hook": "TradingView alerts -> passphrase-gated webhook -> Binance order execution."
 }
