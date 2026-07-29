@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "ai-sprint/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -q -r requirements.txt
+          pip install -q ruff
+
+      - name: Lint
+        run: ruff check backend/
+
+      - name: Format check
+        run: ruff format --check backend/
+
+      - name: Provision config
+        # config.toml is git-ignored (it holds only $VAR placeholders that
+        # envtoml substitutes from the environment at runtime), so CI has to
+        # materialize it from the tracked example before Django can start.
+        run: cp config.toml.example config.toml
+
+      - name: Missing migrations check
+        env:
+          DJANGO_SECRET_KEY: ci-only-throwaway-key-3f8b2c9d1e6a4750b9c2d8e1f4a7630b5c8e9d2a
+          DEBUG: "True"
+          SQLITE_NAME: ci.sqlite3
+          PROJECT_LOGS_DIR: ci-logs
+          WEBHOOK_PASSPHRASE: ci-passphrase
+          API_KEY: ci-dummy
+          API_SECRET: ci-dummy
+        run: python backend/manage.py makemigrations --check --dry-run
+
+      - name: Tests
+        env:
+          DJANGO_SECRET_KEY: ci-only-throwaway-key-3f8b2c9d1e6a4750b9c2d8e1f4a7630b5c8e9d2a
+          DEBUG: "True"
+          SQLITE_NAME: ci.sqlite3
+          PROJECT_LOGS_DIR: ci-logs
+          WEBHOOK_PASSPHRASE: ci-passphrase
+          API_KEY: ci-dummy
+          API_SECRET: ci-dummy
+        working-directory: backend
+        run: python manage.py test
+
+      - name: Production-mode system check
+        # The production-only security block (HSTS/CSP/SSL redirect) only
+        # activates when DEBUG is falsy — this asserts the app actually boots
+        # in that mode, which is how a django-csp incompatibility that blocked
+        # every production start once went unnoticed.
+        env:
+          DJANGO_SECRET_KEY: ci-only-throwaway-key-3f8b2c9d1e6a4750b9c2d8e1f4a7630b5c8e9d2a
+          DEBUG: "False"
+          ALLOWED_HOSTS: example.com
+          CORS_ALLOWED_ORIGINS: https://example.com
+          SQLITE_NAME: ci.sqlite3
+          PROJECT_LOGS_DIR: ci-logs
+          WEBHOOK_PASSPHRASE: ci-passphrase
+          API_KEY: ci-dummy
+          API_SECRET: ci-dummy
+          EMAIL_HOST: smtp.example.com
+          EMAIL_PORT: "587"
+          EMAIL_USE_TLS: "True"
+          EMAIL_HOST_USER: ci@example.com
+          EMAIL_HOST_PASSWORD: ci-dummy
+        run: python backend/manage.py check --deploy
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Provision config
+        run: cp config.toml.example config.toml
+
+      - name: Build image
+        run: docker build -f docker/DockerFile -t tradingview2exch:ci .

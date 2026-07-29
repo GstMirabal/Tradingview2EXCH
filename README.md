@@ -57,6 +57,9 @@
 
 This project receives TradingView alerts over a passphrase-gated webhook and executes the corresponding order on Binance. It's a single Django project (`backend/`) with a Service Layer wrapping the `binance-connector` SDK, security-hardened settings, and a SQLite database.
 
+> [!WARNING]
+> **This software places real trades with real money.** Read [`SECURITY.md`](SECURITY.md) before deploying — it covers API key restrictions, HTTPS requirements, and the disclaimer of liability. Start with `DEBUG=True`, which routes orders to Binance's dry-run endpoint instead of executing them.
+
 ### Key Features:
 - **Modular Structure**: separate apps for webhook intake (`Webhook_Receiver`) and Binance execution (`Binance_Connector`).
 - **Service Layer Architecture**: order execution logic lives in `BinanceService`, decoupled from the views.
@@ -194,13 +197,15 @@ This project is governed by the [`.agents`](https://github.com/GstMirabal/.agent
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are welcome and **greatly appreciated**. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the setup steps, the three local checks to run before opening a PR, and notes on areas that need extra care (config loading, security settings, the webhook field contract).
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+By participating, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). For security issues, please follow [`SECURITY.md`](SECURITY.md) instead of opening a public issue.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
