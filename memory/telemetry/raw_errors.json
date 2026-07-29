@@ -1,0 +1,8 @@
+[
+  {
+    "timestamp": "2026-07-29T22:41:54.216075",
+    "hook": "on_commit",
+    "type": "SECRET_VIOLATION",
+    "details": "secret_sovereignty scrutiny detected vulnerabilities"
+  }
+]

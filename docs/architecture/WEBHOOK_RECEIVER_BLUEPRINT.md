@@ -4,7 +4,7 @@
 **Sprint of origin**: #000
 **Last Audit Sprint**: #002
 **Last Audit Date**: 2026-07-29
-**Last Audit Commit SHA**: pending (updated at end of Sprint 002, see CHANGELOG)
+**Last Audit Commit SHA**: 13868e0
 
 ---
 

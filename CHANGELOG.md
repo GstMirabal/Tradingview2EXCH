@@ -8,6 +8,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](
 
 ## [Unreleased]
 
+### Sprint #002 — Independent re-audit before publishing
+
+An independent second-pass audit (fresh code re-read + a background subagent that actually built and ran the Docker image, not just validated it statically) found real gaps Sprint #001 left behind.
+
+#### Fixed
+- **Docker never actually worked**: `config.toml` wasn't `COPY`'d into the image and was excluded via `.dockerignore` — the container crashed on `manage.py migrate` with `ImproperlyConfigured`. Verified by building and running the container end-to-end, before and after the fix.
+- `config.toml` was still git-tracked despite Sprint #001's CHANGELOG entry claiming otherwise — untracked for real this time, verified with `git ls-files config.toml` immediately before the commit.
+- Bare `except Exception` handlers in both views leaked `str(e)` to API clients — now a generic message; detail stays server-side in the log.
+- `SQLITE_NAME` empty-string bug (envtoml substitutes an unset `$VAR` with `''`, not a missing key, so `dict.get(key, default)` never fell back) — fixed with an `or` fallback; the same pattern was applied proactively to the new `TIME_ZONE` setting.
+- `CORE_BLUEPRINT.md` was never updated in Sprint #001 — still described the `config['security']` `KeyError` bug and the old `webhookReceived` name as current fact.
+
+#### Changed
+- Last camelCase route: `binanceParams/` → `binance-params/` (internal, `IsAdminUser`-gated endpoint).
+- Removed the dead `USE_SQLITE` toggle (documented, never read by `settings.py`).
+- `TIME_ZONE` moved from hardcoded to config-driven (defaults to `UTC`).
+- Added DRF `ScopedRateThrottle` (20/min) on `WebhookReceivedView` — internet-facing, previously gated only by a static passphrase with no rate limit.
+- Fixed ~20 stale `docs.djangoproject.com/en/5.2` links left over from the Django 6.0 upgrade.
+- `identity.config.json` (blank since the `.agents` bridge install) completed with real project identity.
+
+#### Removed
+- `memory/telemetry/raw_errors.json` (ephemeral hook-violation log) purged per `agents.md`'s zero-tolerance memory rule.
+
 ### Sprint #001 — Full security & quality remediation
 
 #### Fixed
