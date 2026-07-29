@@ -50,6 +50,30 @@ except FileNotFoundError as e:
     ) from e
 
 
+def _config_bool(value: object, *, default: bool = False) -> bool:
+    """Parses a config value that must be a boolean but arrives as a string.
+
+    `envtoml` substitutes an unset/text `$VAR` reference into a quoted TOML
+    string, so `DEBUG = "$DEBUG"` resolves to the Python string `'False'`,
+    not the boolean `False` — and any non-empty string is truthy in Python,
+    so a naive `if DEBUG:` would treat `DEBUG="False"` as true. This exists
+    specifically to avoid that: a real deployment setting `DEBUG="False"` or
+    `EMAIL_USE_TLS="False"` in `.env` must actually resolve to `False`.
+
+    Args:
+        value: The raw config value (usually a string like `'True'`/`'False'`).
+        default: Returned when `value` is None or an empty string.
+
+    Returns:
+        The parsed boolean.
+    """
+    if isinstance(value, bool):
+        return value
+    if not value:
+        return default
+    return str(value).strip().lower() in ('true', '1', 'yes', 'on')
+
+
 # ==============================================================================
 # SECTION 2: CORE SECURITY SETTINGS
 # ==============================================================================
@@ -73,7 +97,7 @@ except (KeyError, ValueError) as e:
 # SECURITY WARNING: Never run with debug turned on in production!
 # Documentation: https://docs.djangoproject.com/en/6.0/ref/settings/#debug
 # ------------------------------------------------------------------------------
-DEBUG = config['django_settings'].get('DEBUG')
+DEBUG = _config_bool(config['django_settings'].get('DEBUG'))
 
 
 # --- 2.3 ALLOWED HOSTS (ALLOWED_HOSTS) ---
@@ -143,6 +167,13 @@ if not DEBUG and not CORS_ALLOWED_ORIGINS:
 # ------------------------------------------------------------------------------
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    # Without this, SECURE_SSL_REDIRECT can't tell HTTPS was already
+    # terminated by a reverse proxy (nginx/Traefik/a cloud load balancer —
+    # gunicorn itself never terminates TLS) and redirects every request in
+    # an infinite loop. This trusts the de facto standard header; if you
+    # deploy gunicorn directly with no TLS-terminating proxy in front, set
+    # SECURE_SSL_REDIRECT = False instead, since there's nothing to redirect to.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -355,7 +386,7 @@ else:
         email_config = config['email_settings']
         EMAIL_HOST: str = email_config['EMAIL_HOST']
         EMAIL_PORT = email_config['EMAIL_PORT']
-        EMAIL_USE_TLS = email_config['EMAIL_USE_TLS']
+        EMAIL_USE_TLS = _config_bool(email_config['EMAIL_USE_TLS'], default=True)
         EMAIL_HOST_USER: str = email_config['EMAIL_HOST_USER']
         EMAIL_HOST_PASSWORD: str = email_config['EMAIL_HOST_PASSWORD']
 

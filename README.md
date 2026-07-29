@@ -122,6 +122,8 @@ docker-compose up --build
 
 The SQLite file persists in the `sqlite_data` named volume across `docker-compose down`.
 
+**Production note**: with `DEBUG=False`, `SECURE_SSL_REDIRECT` is on and gunicorn itself never terminates TLS — put a reverse proxy (nginx, Traefik, a cloud load balancer) in front that forwards `X-Forwarded-Proto`, or every request redirect-loops. If you're running gunicorn directly with no such proxy, set `SECURE_SSL_REDIRECT = False` in `settings.py` instead.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage

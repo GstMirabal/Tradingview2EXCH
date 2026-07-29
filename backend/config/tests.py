@@ -88,3 +88,33 @@ class SettingsGuardsTests(SimpleTestCase):
     def test_valid_production_config_does_not_raise(self) -> None:
         """A fully-populated production config reloads cleanly (control case)."""
         _reload_settings_with({})
+
+    def test_string_debug_false_resolves_to_real_boolean(self) -> None:
+        """A string `DEBUG="False"` (as envtoml produces it) resolves to `False`.
+
+        `envtoml` substitutes an unset/text `$DEBUG` into a quoted TOML
+        string, so the real pipeline never hands settings.py an actual
+        Python bool — BASE_CONFIG's `'DEBUG': False` above uses a native
+        bool, which would have hidden this exact bug. This test mimics
+        the real return shape (strings) to catch it.
+        """
+        _reload_settings_with({'django_settings': {'DEBUG': 'False'}})
+        self.assertIs(settings_module.DEBUG, False)  # noqa: FBT003
+        # Production hardening (Section 3) must actually engage.
+        self.assertTrue(settings_module.SECURE_SSL_REDIRECT)
+        self.assertIn('DIRECTIVES', settings_module.CONTENT_SECURITY_POLICY)
+
+    def test_string_debug_true_resolves_to_real_boolean(self) -> None:
+        """`DEBUG="True"` (a string) must resolve to the boolean `True`."""
+        _reload_settings_with({'django_settings': {'DEBUG': 'True'}})
+        self.assertIs(settings_module.DEBUG, True)  # noqa: FBT003
+
+    def test_string_email_use_tls_false_resolves_to_real_boolean(self) -> None:
+        """`EMAIL_USE_TLS="False"` (a string) must resolve to boolean `False`."""
+        _reload_settings_with(
+            {
+                'django_settings': {'DEBUG': 'False'},
+                'email_settings': {'EMAIL_USE_TLS': 'False'},
+            }
+        )
+        self.assertIs(settings_module.EMAIL_USE_TLS, False)  # noqa: FBT003
