@@ -21,6 +21,10 @@ An independent second-pass audit (fresh code re-read + a background subagent tha
 - `SQLITE_NAME` empty-string bug (envtoml substitutes an unset `$VAR` with `''`, not a missing key, so `dict.get(key, default)` never fell back) — fixed with an `or` fallback; the same pattern was applied proactively to the new `TIME_ZONE` setting.
 - `CORE_BLUEPRINT.md` was never updated in Sprint #001 — still described the `config['security']` `KeyError` bug and the old `webhookReceived` name as current fact.
 
+#### Added
+- Community health files required for a public repository: `CONTRIBUTING.md` (setup, the three local checks, and warnings about the areas that have repeatedly bitten this project), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), and an expanded `SECURITY.md` with a "Deploying this safely" section plus an explicit financial-liability disclaimer — this software places real trades and previously said nothing about that.
+- `.github/workflows/ci.yml`: lint, format check, missing-migrations check, the test suite, a `DEBUG=False` `check --deploy` run, and a separate Docker build job. The last two are deliberately the gates that would have caught the two worst bugs of this audit (the django-csp production-boot failure and `config.toml` never reaching the image).
+
 #### Changed
 - Last camelCase route: `binanceParams/` → `binance-params/` (internal, `IsAdminUser`-gated endpoint).
 - Removed the dead `USE_SQLITE` toggle (documented, never read by `settings.py`).
@@ -28,9 +32,14 @@ An independent second-pass audit (fresh code re-read + a background subagent tha
 - Added DRF `ScopedRateThrottle` (20/min) on `WebhookReceivedView` — internet-facing, previously gated only by a static passphrase with no rate limit.
 - Fixed ~20 stale `docs.djangoproject.com/en/5.2` links left over from the Django 6.0 upgrade.
 - `identity.config.json` (blank since the `.agents` bridge install) completed with real project identity.
+- `sqlparse` 0.5.3 → 0.5.5, closing the last open Dependabot alert. The Sprint 001/002 dependency work took the repo from 24 open alerts to zero.
 
 #### Removed
 - `memory/telemetry/raw_errors.json` (ephemeral hook-violation log) purged per `agents.md`'s zero-tolerance memory rule.
+- `.prettierrc` — JS/CSS formatter config in a pure-Python project, leftover from the original template.
+
+#### Published
+- Rewritten history force-pushed to `origin/main`, and all four version tags (`0.0.1`–`0.0.4`) deleted and re-pushed at their rewritten SHAs. The old tags still pointed at pre-rewrite commits, which would have kept the leaked `SECRET_KEY` reachable from GitHub despite the `main` purge. Verified afterwards: zero commits containing `tradingview2exch/settings.py` are reachable from any published ref.
 
 ### Sprint #001 — Full security & quality remediation
 
