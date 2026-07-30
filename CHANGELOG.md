@@ -74,6 +74,6 @@ An independent second-pass audit (fresh code re-read + a background subagent tha
 _Seed entry: audited state of the project at governance adoption (Scenario C — summarized, not itemized line-by-line)._
 
 - Backend-only Django trading webhook relay: TradingView alerts -> `Webhook_Receiver` -> `Binance_Connector` -> Binance API, under `backend/config/` (settings, urls) and `backend/apps/` (`core`, `Binance_Connector`, `Webhook_Receiver`).
-- Prior undocumented history migrated the project onto a Django-Pro template, introduced a Service Layer, and hardened security (commit `6cd4c32`), followed by ruff linting fixes and explicit `.env` loading in `manage.py` (commit `f5ea84d`), predating this governance adoption.
+- Prior undocumented history migrated the project onto a Django-Pro template, introduced a Service Layer, and hardened security (commit `48bad3b`), followed by ruff linting fixes and explicit `.env` loading in `manage.py` (commit `ddd7b14`), predating this governance adoption.
 - **Known cleanup candidate (flagged, not actioned)**: root-level `Binance_Connector/` and `Webhook_Receiver/` directories are pre-migration duplicates of the now-active `backend/apps/` versions — confirmed dead code, not referenced in `settings.py`/`urls.py`. Left in place pending an explicit human deletion decision; tracked as `legacy_flags` in `docs/active_state.json`.
 - Containerization present at `docker/DockerFile` + `docker-compose.yml`; app-level runtime config at root `config.toml` (distinct from Django settings).

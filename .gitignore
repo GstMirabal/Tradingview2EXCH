@@ -94,3 +94,9 @@ db.sqlite3-wal
 /.claude/skills/
 /.claude/settings.local.json
 /graphify-out/
+
+# .agents ephemeral session state — a crash-recovery mirror of
+# docs/active_state.json (which is the tracked source of truth), rewritten by
+# the framework's Stop hook. The .agents repo gitignores this same path.
+/.agent_state/
+/memory/

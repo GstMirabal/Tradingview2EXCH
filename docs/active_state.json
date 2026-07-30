@@ -9,7 +9,7 @@
     "description": "Mature project, no prior docs, zero prior agentic traces. Full Reverse Engineering executed per .agents/workflows/standardization_workflow.md Phase 6.",
     "baseline_audit_sprint": "000",
     "baseline_audit_date": "2026-07-27",
-    "baseline_audit_commit_sha": "9fad6e6",
+    "baseline_audit_commit_sha": "c2c714a",
     "sprint_note": "No sprint folder formally opened yet. Sprint 000 is reserved as the legacy audit baseline for this onboarding pass; current_sprint_id stays null until the Orchestrator opens docs/sprints/000-.../ in a subsequent pipeline phase."
   },
   "code_containers": [

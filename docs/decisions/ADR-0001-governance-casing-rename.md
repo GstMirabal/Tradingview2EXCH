@@ -7,7 +7,7 @@
 
 ## 1. Context
 
-`agents.md §1` mandates `snake_case` for variables/functions and `PascalCase` for classes. The Django-Pro migration (commit `6cd4c32`) introduced a Service Layer and security hardening but left the original model/field/class names untouched: `binanceParams`, `webhook`, `webhookReceived`, `binanceParamsserializers`, and model fields `orderId`, `marketPosition`, `marketPrevPosition`. Because `Webhook`'s serializer uses `fields = '__all__'`, these Python identifiers are also the exact JSON keys in the wire contract that TradingView alerts (configured by the project owner outside this repo) already send to `POST /webhook-receiver/webhook/` — e.g. `orderId` in the alert payload.
+`agents.md §1` mandates `snake_case` for variables/functions and `PascalCase` for classes. The Django-Pro migration (commit `48bad3b`) introduced a Service Layer and security hardening but left the original model/field/class names untouched: `binanceParams`, `webhook`, `webhookReceived`, `binanceParamsserializers`, and model fields `orderId`, `marketPosition`, `marketPrevPosition`. Because `Webhook`'s serializer uses `fields = '__all__'`, these Python identifiers are also the exact JSON keys in the wire contract that TradingView alerts (configured by the project owner outside this repo) already send to `POST /webhook-receiver/webhook/` — e.g. `orderId` in the alert payload.
 
 ## 2. Decision
 
