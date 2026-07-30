@@ -4,6 +4,7 @@
 <img src="docs/assets/logo/project_banner.svg" alt="Tradingview2EXCH banner" width="100%">
 <!-- BANNER_END -->
 
+[![CI][ci-shield]][ci-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -15,13 +16,8 @@
 
 <a name="readme-top"></a>
 
-<h3 align="center">Tradingview To EXCH API</h3>
-
 <p align="center">
-  Django REST bridge between TradingView webhook alerts and the Binance API.
-<br /><br />
 <a href="docs/0_SYSTEM_OVERVIEW.md"><strong>Explore the docs »</strong></a>
-<br />
 ·
 <a href="https://github.com/GstMirabal/Tradingview2EXCH/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
 ·
@@ -69,10 +65,10 @@ This project receives TradingView alerts over a passphrase-gated webhook and exe
 
 ### Built With
 
-[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
-[![Binance](https://img.shields.io/badge/Binance-F3BA2F?style=for-the-badge&logo=binance&logoColor=black)](https://www.binance.com/)
-[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-092E20?style=flat&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Binance](https://img.shields.io/badge/Binance-F3BA2F?style=flat&logo=binance&logoColor=black)](https://www.binance.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-07405E?style=flat&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -228,15 +224,17 @@ Project Link: [https://github.com/GstMirabal/Tradingview2EXCH](https://github.co
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
+[ci-shield]: https://img.shields.io/github/actions/workflow/status/GstMirabal/Tradingview2EXCH/ci.yml?branch=main&style=flat&label=CI
+[ci-url]: https://github.com/GstMirabal/Tradingview2EXCH/actions/workflows/ci.yml
+[contributors-shield]: https://img.shields.io/github/contributors/GstMirabal/Tradingview2EXCH.svg?style=flat
 [contributors-url]: https://github.com/GstMirabal/Tradingview2EXCH/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/GstMirabal/Tradingview2EXCH.svg?style=flat
 [forks-url]: https://github.com/GstMirabal/Tradingview2EXCH/network/members
-[stars-shield]: https://img.shields.io/github/stars/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/GstMirabal/Tradingview2EXCH.svg?style=flat
 [stars-url]: https://github.com/GstMirabal/Tradingview2EXCH/stargazers
-[issues-shield]: https://img.shields.io/github/issues/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/GstMirabal/Tradingview2EXCH.svg?style=flat
 [issues-url]: https://github.com/GstMirabal/Tradingview2EXCH/issues
-[license-shield]: https://img.shields.io/github/license/GstMirabal/Tradingview2EXCH.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/GstMirabal/Tradingview2EXCH.svg?style=flat
 [license-url]: https://github.com/GstMirabal/Tradingview2EXCH/blob/main/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/gstmirabal/
