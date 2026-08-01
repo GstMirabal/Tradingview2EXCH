@@ -337,6 +337,44 @@ REST_FRAMEWORK = {
 
 
 # ==============================================================================
+# SECTION 6.5: CACHE CONFIGURATION
+# ==============================================================================
+# Declared explicitly rather than left to Django's implicit per-process
+# LocMemCache, because something here depends on it: DRF stores throttle
+# counters in the default cache (`rest_framework/throttling.py`,
+# `SimpleRateThrottle.cache`).
+#
+# The `webhook` scope is capped at 20/min, and that cap is the only limit
+# between a caller holding the passphrase and an unbounded number of orders.
+# On a per-process backend the cap is per worker, so it multiplies by the
+# worker count without anything reporting it. `entrypoint.sh` currently runs
+# gunicorn with no `--workers` flag, so one worker, so 20/min is 20/min today —
+# and adding a worker for throughput would quietly make it 40.
+#
+# Redis when REDIS_URL is configured, per-process otherwise. See
+# Django-Pro-Template ADR-0005 for why the fallback is silent rather than a
+# hard failure.
+# ------------------------------------------------------------------------------
+cache_config = config.get('cache', {})
+REDIS_URL: str | None = cache_config.get('REDIS_URL') or os.environ.get('REDIS_URL')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'tradingview2exch',
+        }
+    }
+
+
+# ==============================================================================
 # SECTION 7: PASSWORD VALIDATION AND HASHING
 # ==============================================================================
 
