@@ -1,5 +1,5 @@
 # Development-only tooling. Install alongside requirements.txt:
 #   pip install -r requirements.txt -r requirements-dev.txt
-ruff==0.15.8
+ruff==0.16.0
 pytest==9.1.1
-pytest-django==4.10.0
+pytest-django==4.12.0
