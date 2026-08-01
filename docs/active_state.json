@@ -3,7 +3,6 @@
   "status": "ACTIVE",
   "active_layer": "unassigned",
   "active_app": "global",
-  "current_sprint_id": null,
   "onboarding": {
     "scenario": "C",
     "description": "Mature project, no prior docs, zero prior agentic traces. Full Reverse Engineering executed per .agents/workflows/standardization_workflow.md Phase 6.",
@@ -40,5 +39,11 @@
     ".agents/"
   ],
   "legacy_flags": {},
-  "sprint_001_note": "Legacy root-level Binance_Connector/, Webhook_Receiver/, tradingview2exch/, and root manage.py (flagged in legacy_flags above during Sprint 000 onboarding) were deleted in Sprint 001 after confirming Docker's entrypoint.sh actually booted the unauthenticated legacy project in production. legacy_flags is now empty — nothing legacy remains."
+  "sprint_001_note": "Legacy root-level Binance_Connector/, Webhook_Receiver/, tradingview2exch/, and root manage.py (flagged in legacy_flags above during Sprint 000 onboarding) were deleted in Sprint 001 after confirming Docker's entrypoint.sh actually booted the unauthenticated legacy project in production. legacy_flags is now empty — nothing legacy remains.",
+  "current_sprint": {
+    "id": 3,
+    "last_audit_sprint": 2,
+    "last_audit_commit_sha": "c236cfa",
+    "status": "IN_PROGRESS"
+  }
 }

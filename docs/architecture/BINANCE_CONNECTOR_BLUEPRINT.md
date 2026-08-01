@@ -2,8 +2,8 @@
 **File**: `docs/architecture/BINANCE_CONNECTOR_BLUEPRINT.md` (RA-06 Option B naming)
 **Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #002
-**Last Audit Date**: 2026-07-29
+**Last Audit Sprint**: #003
+**Last Audit Date**: 2026-08-01
 **Last Audit Commit SHA**: 13868e0
 
 ---
@@ -29,9 +29,9 @@ Contracts (formal interfaces this module exposes):
 
 | Interface | Type | Defined in |
 | :--- | :--- | :--- |
-| `POST /binance-connector/binance-params/` (`BinanceParamsView`) | REST | Not yet published — no `docs/contracts/BINANCE_CONNECTOR_CONTRACT.md` exists at this audit |
-| `GET /binance-connector/status/` (`BinanceStatusView`) | REST | Not yet published |
-| `BinanceService.execute_order(symbol, side, order_type, quantity)` | Function (Service Layer) | Not yet published |
+| `POST /binance-connector/binance-params/` (`BinanceParamsView`) | REST | `docs/contracts/BINANCE_CONNECTOR_CONTRACT.md` |
+| `GET /binance-connector/status/` (`BinanceStatusView`) | REST | `docs/contracts/BINANCE_CONNECTOR_CONTRACT.md` |
+| `BinanceService.execute_order(symbol, side, order_type, quantity)` | Function (Service Layer) | `docs/contracts/BINANCE_CONNECTOR_CONTRACT.md`, *Service layer* |
 
 Data model (summary only):
 - `BinanceParams`: one submitted order-parameter record — `exchange`, `symbol`, `side`, `type` (all `CharField`, uppercased on `save()`), `size` (`DecimalField`, max_digits=12, decimal_places=6).

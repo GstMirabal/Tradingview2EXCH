@@ -2,8 +2,8 @@
 **File**: `docs/architecture/WEBHOOK_RECEIVER_BLUEPRINT.md` (RA-06 Option B naming)
 **Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #002
-**Last Audit Date**: 2026-07-29
+**Last Audit Sprint**: #003
+**Last Audit Date**: 2026-08-01
 **Last Audit Commit SHA**: 13868e0
 
 ---
@@ -29,7 +29,7 @@ Contracts (formal interfaces this module exposes):
 
 | Interface | Type | Defined in |
 | :--- | :--- | :--- |
-| `POST /webhook-receiver/webhook/` (`WebhookReceivedView`) | REST | Not yet published — no `docs/contracts/WEBHOOK_RECEIVER_CONTRACT.md` exists at this audit |
+| `POST /webhook-receiver/webhook/` (`WebhookReceivedView`) | REST | `docs/contracts/WEBHOOK_RECEIVER_CONTRACT.md` |
 
 Data model (summary only):
 - `Webhook`: one persisted raw TradingView alert — `symbol`, `exchange`, `time` (`DateTimeField`, `db_index=True`), `interval` (`DecimalField`), `size` (`DecimalField`), `side` (`CharField`), `price` (`DecimalField`), `order_id` (`CharField`, `unique=True`), `market_position` (`DecimalField`), `market_prev_position` (`DecimalField`), `type` (`CharField`).
