@@ -1,0 +1,39 @@
+# Dependency updates arrive as pull requests instead of accumulating silently.
+#
+# Two ecosystems, deliberately split: `binance-connector` is grouped on its own
+# because a change in exchange-client behaviour moves money, and it deserves a
+# pull request nobody merges on autopilot alongside a certifi bump.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      exchange-client:
+        patterns:
+          - "binance-connector"
+      django-stack:
+        patterns:
+          - "django*"
+          - "drf-*"
+          - "asgiref"
+          - "sqlparse"
+      everything-else:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "binance-connector"
+          - "django*"
+          - "drf-*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/docker"
+    schedule:
+      interval: weekly

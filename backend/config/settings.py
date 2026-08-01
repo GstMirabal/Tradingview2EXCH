@@ -66,7 +66,9 @@ if env_file.exists():
 config_path = BASE_DIR / 'config.toml'
 
 try:
-    with config_path.open('r', encoding='utf-8') as f:
+    # Binary mode is required from envtoml 0.4, which parses through the
+    # standard library's `tomllib` instead of the third-party `toml` package.
+    with config_path.open('rb') as f:
         config: Any = envtoml.load(f)
 except FileNotFoundError as e:
     raise ImproperlyConfigured(
