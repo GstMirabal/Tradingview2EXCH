@@ -8,6 +8,56 @@ Format: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](
 
 ## [Unreleased]
 
+### Sprint #003 — Backend / Hardening
+
+> [!WARNING]
+> **Breaking: nothing trades by default.** `[binance].LIVE_TRADING` replaces the
+> `DEBUG`-derived switch and is `false` unless set. A deployment that relied on
+> `DEBUG=false` to place real orders must set it before upgrading, or it stops
+> trading. `manage.py check` reports `binance.W001` while it is off.
+
+#### Fixed
+- **A rejected order could never be retried.** The alert was persisted before
+  the exchange call and never rolled back, and `order_id` is unique, so the
+  retry TradingView sent was refused as a duplicate. Any transient exchange
+  condition lost the trade permanently while reporting it as processed.
+  `Webhook.execution_status` now records the outcome, and only `REJECTED`
+  reopens an alert — a timeout stays blocked, because it may have filled with
+  the response lost.
+- **`DEBUG` decided whether an order was real**, binding a Django presentation
+  flag to capital movement in both directions.
+- **Only one of four entrypoints loaded `.env`**, and its loader assigned
+  rather than using `setdefault`, so the file overwrote the real environment.
+  `wsgi` and `asgi` — how this project is served — started without it, and
+  `DEBUG=false` exported by a shell was read back as true.
+- Thirteen logging calls built their message with an f-string; three discarded
+  the traceback with `str(e)`.
+
+#### Added
+- `docs/contracts/` — three contracts for four REST endpoints and two internal
+  interfaces that had none.
+- `docs/audits/AUDIT_003_TRADING_RELAY.md` — ten findings, both capital-risk
+  ones closed.
+- pytest harness: `pytest.ini`, `config/settings_test.py`, `requirements-dev.txt`.
+- `CACHES` declared explicitly. DRF keeps throttle counters there, and the
+  `webhook` cap of 20/min is the only limit between a caller holding the
+  passphrase and unbounded orders — on a per-process backend that cap is per
+  worker.
+- `.github/dependabot.yml`, grouping `binance-connector` on its own.
+- `binance.W001` system check.
+
+#### Changed
+- CI calls `Django-Pro-Template`'s reusable workflow instead of maintaining its
+  own copy.
+- Eight scaffolding dependencies raised to match that template. The trading
+  dependencies needed nothing — each was already the latest published.
+- `ruff` selects `S` and `G`. Under `S`, the production code came back clean.
+- Repository topics: `flask` replaced with `django`.
+
+#### Removed
+- `toml==0.10.2`. `envtoml` 0.4 parses through the standard library's
+  `tomllib`, which also required opening `config.toml` in binary mode.
+
 ### Sprint #002 — Independent re-audit before publishing
 
 An independent second-pass audit (fresh code re-read + a background subagent that actually built and ran the Docker image, not just validated it statically) found real gaps Sprint #001 left behind.

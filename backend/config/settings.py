@@ -38,10 +38,37 @@ logger = logging.getLogger('django')
 default_base_dir: Path = Path(__file__).resolve().parent.parent.parent
 env_base_dir: str | None = os.environ.get('BASE_DIR')
 BASE_DIR: Path = Path(env_base_dir) if env_base_dir else default_base_dir
+
+# `.env` is loaded here, not in `manage.py`.
+#
+# Every entrypoint imports settings; only one imports `manage.py`. Loading it
+# there meant `wsgi`, `asgi` and any test runner started without it — and those
+# first two are how this project is actually served in production.
+#
+# `setdefault`, not assignment. The previous loader assigned, so a value
+# exported by the shell, the container or the orchestrator was overwritten by
+# whatever `.env` happened to hold. `DEBUG=false ./manage.py check --deploy`
+# read `DEBUG` back as true and validated nothing. That matters more here than
+# in most projects: `DEBUG` also selects between a Binance dry run and a live
+# order (`docs/contracts/WEBHOOK_RECEIVER_CONTRACT.md`).
+env_file = BASE_DIR / '.env'
+if env_file.exists():
+    with env_file.open(encoding='utf-8') as env_handle:
+        for raw_line in env_handle:
+            stripped = raw_line.strip()
+            if not stripped or stripped.startswith('#') or '=' not in stripped:
+                continue
+            env_key, env_value = stripped.split('=', 1)
+            os.environ.setdefault(
+                env_key.strip(), env_value.strip().strip('"').strip("'")
+            )
+
 config_path = BASE_DIR / 'config.toml'
 
 try:
-    with config_path.open('r', encoding='utf-8') as f:
+    # Binary mode is required from envtoml 0.4, which parses through the
+    # standard library's `tomllib` instead of the third-party `toml` package.
+    with config_path.open('rb') as f:
         config: Any = envtoml.load(f)
 except FileNotFoundError as e:
     raise ImproperlyConfigured(
@@ -287,7 +314,7 @@ try:
             'NAME': BASE_DIR / sqlite_db_name,
         }
     }
-    logger.info(f'Using SQLite database at {BASE_DIR / sqlite_db_name}')
+    logger.info('Using SQLite database at %s', BASE_DIR / sqlite_db_name)
 
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(
@@ -309,6 +336,69 @@ REST_FRAMEWORK = {
         'webhook': '20/min',
     },
 }
+
+
+# ==============================================================================
+# SECTION 6.4: EXCHANGE TRADING MODE
+# ==============================================================================
+# Whether an order reaches the exchange for real.
+#
+# This was derived from DEBUG until Sprint #003, which coupled a Django
+# presentation flag to capital movement and cut both ways: any environment
+# running DEBUG=false placed live orders, and a production host left with
+# DEBUG=true stopped trading while still answering 201.
+#
+# Absent, it is False: the connector calls `new_order_test`, which the exchange
+# validates and never executes. Trading with real money now requires writing it
+# down. `apps.Binance_Connector.checks` reports the omission at startup, so a
+# deployment that meant to trade is told why it is not.
+# ------------------------------------------------------------------------------
+_binance_config = config.get('binance', {})
+BINANCE_LIVE_TRADING: bool = _config_bool(
+    _binance_config.get('LIVE_TRADING'), default=False
+)
+# Whether the project stated a choice at all. Writing `false` is a decision and
+# needs no warning; omitting the key means nobody decided, and that is what
+# `binance.W001` exists to say.
+BINANCE_LIVE_TRADING_DECLARED: bool = 'LIVE_TRADING' in _binance_config
+
+
+# ==============================================================================
+# SECTION 6.5: CACHE CONFIGURATION
+# ==============================================================================
+# Declared explicitly rather than left to Django's implicit per-process
+# LocMemCache, because something here depends on it: DRF stores throttle
+# counters in the default cache (`rest_framework/throttling.py`,
+# `SimpleRateThrottle.cache`).
+#
+# The `webhook` scope is capped at 20/min, and that cap is the only limit
+# between a caller holding the passphrase and an unbounded number of orders.
+# On a per-process backend the cap is per worker, so it multiplies by the
+# worker count without anything reporting it. `entrypoint.sh` currently runs
+# gunicorn with no `--workers` flag, so one worker, so 20/min is 20/min today —
+# and adding a worker for throughput would quietly make it 40.
+#
+# Redis when REDIS_URL is configured, per-process otherwise. See
+# Django-Pro-Template ADR-0005 for why the fallback is silent rather than a
+# hard failure.
+# ------------------------------------------------------------------------------
+cache_config = config.get('cache', {})
+REDIS_URL: str | None = cache_config.get('REDIS_URL') or os.environ.get('REDIS_URL')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'tradingview2exch',
+        }
+    }
 
 
 # ==============================================================================

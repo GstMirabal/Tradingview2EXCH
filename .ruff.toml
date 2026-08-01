@@ -6,7 +6,7 @@ exclude = [".agents", "venv", "__pycache__"]
 [lint]
 # N: Pep8-naming, D: pydocstyle (Google), UP: pyupgrade, ANN: flake8-annotations
 # BLE: flake8-blind-except, FBT: flake8-boolean-trap
-select = ["E", "F", "W", "N", "D", "UP", "ANN", "BLE", "FBT", "B", "C4", "SIM", "PIE"]
+select = ["S", "G", "E", "F", "W", "N", "D", "UP", "ANN", "BLE", "FBT", "B", "C4", "SIM", "PIE"]
 ignore = ["D100", "D104", "D106"]
 
 [lint.pydocstyle]
@@ -17,3 +17,10 @@ quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[lint.per-file-ignores]
+# pytest's idiom IS bare `assert`, and a fixture credential is a literal by
+# necessity: there is nothing to leak in a value that exists only in the suite.
+"backend/**/test*/**" = ["S101", "S105", "S106", "S107"]
+"backend/**/tests.py" = ["S101", "S105", "S106", "S107"]
+"backend/config/tests.py" = ["S101", "S105", "S106", "S107"]

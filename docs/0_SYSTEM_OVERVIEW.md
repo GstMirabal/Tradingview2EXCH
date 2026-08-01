@@ -1,7 +1,7 @@
 # System Overview: Tradingview2EXCH
-**Last Audit Sprint**: #000
-**Last Audit Date**: 2026-07-27
-**Last Audit Commit SHA**: n/a (git filter-repo rewrote all commit SHAs in this same sprint; audit spans the whole ai-sprint/001-full-remediation branch, see CHANGELOG)
+**Last Audit Sprint**: #003
+**Last Audit Date**: 2026-08-01
+**Last Audit Commit SHA**: 13868e0
 
 This is the **Documentation Entry Point**. `agents.md §0 (Entry Point)` requires every session to read this file before anything else. It is intentionally short — for the full component inventory, see the topology map maintained inside `docs/active_state.json` (`topology_map` key).
 
@@ -33,7 +33,9 @@ Tradingview2EXCH is a **backend-only Django trading webhook relay**. It receives
 | Containerization | `docker/DockerFile`, `docker-compose.yml` | Runtime packaging for the backend (and its datastore, per compose services). |
 | Runtime config | `config.toml` (root) | App-level runtime configuration, distinct from Django settings. |
 
-Component-level (Level 3) detail is advisory only for this stack: `backend/apps/` currently holds 3 containers (`core`, `Binance_Connector`, `Webhook_Receiver`), under the 5-container safety floor in `rules/documentation_standard.md §2.1` point 6. Per-module `[MODULE]_BLUEPRINT.md` content is out of scope for this scaffold pass — owned by `doc-orchestrator`.
+Component-level (Level 3) detail stays advisory for this stack: `backend/apps/` holds 3 containers (`core`, `Binance_Connector`, `Webhook_Receiver`), under the 5-container safety floor in `rules/documentation_standard.md §2.1` point 6.
+
+All three carry a ratified blueprint in `docs/architecture/`. Each was checked against the knowledge graph in Sprint #003 and every path, symbol and route it declares was confirmed to exist.
 
 ## 3. Sprint #001 remediation
 The legacy root-level `Binance_Connector/`, `Webhook_Receiver/`, `tradingview2exch/`, and root `manage.py` flagged at onboarding (Sprint #000) were confirmed to be more than dead code — Docker's `entrypoint.sh` actually resolved to the legacy, unauthenticated `tradingview2exch/` project in production. Sprint #001 deleted all of it, fixed the deploy path to `backend/`, purged a publicly-leaked `SECRET_KEY` from git history, and renamed several identifiers to governance casing (`docs/decisions/ADR-0001-governance-casing-rename.md`). See `docs/walkthroughs/BACKEND_MIGRATION_WALKTHROUGH.md` for the full account.
@@ -57,7 +59,7 @@ Run `/agents:start`. It will:
 ## 6. Where state lives
 - `docs/active_state.json` — this project's own session anchor. Never committed to `.agents`. Holds `topology_map` (flat string paths, maintained by `topology-mapper`) and the sibling `code_containers` declaration.
 - `CHANGELOG.md` (root) — the **Master Ledger**: sprint entries at close, version seals at deployment. Strictly separate jurisdiction from `.agents/CHANGELOG.md` (framework evolution).
-- `docs/roadmaps/`, `docs/sprints/`, `docs/walkthroughs/`, `docs/architecture/`, `docs/contracts/`, `docs/decisions/`, `docs/guides/`, `docs/standards/` — this project's own historical record, currently scaffolded empty (physical topology only — content is `doc-orchestrator`'s and `orchestrator`'s jurisdiction in subsequent pipeline phases).
+- `docs/roadmaps/`, `docs/sprints/`, `docs/walkthroughs/`, `docs/architecture/`, `docs/contracts/`, `docs/decisions/`, `docs/guides/`, `docs/standards/` — this project's own historical record. Populated since Sprint #001; `contracts/` was the last to fill, in Sprint #003.
 - `.agents/docs/` — the framework's own (separate) self-documentation; not this project's.
 
 ## 7. Full inventory

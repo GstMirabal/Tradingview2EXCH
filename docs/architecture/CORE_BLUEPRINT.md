@@ -2,8 +2,8 @@
 **File**: `docs/architecture/CORE_BLUEPRINT.md` (RA-06 Option B naming)
 **Status**: `RATIFIED`
 **Sprint of origin**: #000
-**Last Audit Sprint**: #002
-**Last Audit Date**: 2026-07-29
+**Last Audit Sprint**: #003
+**Last Audit Date**: 2026-08-01
 **Last Audit Commit SHA**: 13868e0
 
 ---
@@ -29,8 +29,8 @@ Contracts (formal interfaces this module exposes):
 
 | Interface | Type | Defined in |
 | :--- | :--- | :--- |
-| `PasswordComplexityValidator.validate(password, user=None)` | Function (Django password-validator protocol) | Not yet published — no `docs/contracts/CORE_CONTRACT.md` exists at this audit |
-| `HasWebhookPassphrase.has_permission(request, view)` | Function (DRF permission-class protocol) | Not yet published — no `docs/contracts/CORE_CONTRACT.md` exists at this audit |
+| `PasswordComplexityValidator.validate(password, user=None)` | Function (Django password-validator protocol) | `docs/contracts/CORE_CONTRACT.md` |
+| `HasWebhookPassphrase.has_permission(request, view)` | Function (DRF permission-class protocol) | `docs/contracts/CORE_CONTRACT.md` |
 
 Data model (summary only): none. `backend/apps/core/models.py` contains only the default Django scaffolding comment — no model classes are defined.
 
@@ -39,7 +39,7 @@ Data model (summary only): none. `backend/apps/core/models.py` contains only the
 2. Webhook authentication: `apps.Webhook_Receiver.views.WebhookReceivedView` declares `permission_classes = [HasWebhookPassphrase]`; on every incoming request, `has_permission` denies non-`POST` methods outright, denies all requests when `config['django_settings']['WEBHOOK_PASSPHRASE']` is unset (logged as a warning), and otherwise compares the request body's `passphrase` field against that configured value using `hmac.compare_digest` (constant-time, avoids a timing side-channel).
 
 ## 5. Crosscutting Concepts
-- Settings access pattern: `from config.settings import config` — a TOML-backed dict (`config['section'].get('KEY')`), used instead of importing individual Django settings constants directly.
+- Settings access pattern: `from config.settings import config`, a TOML-backed dict read as `config['section'].get('KEY')`. Individual Django settings constants are not imported directly.
 - Logging: both building blocks that log use `logging.getLogger('project')`.
 
 ## 6. Non-negotiable Constraints

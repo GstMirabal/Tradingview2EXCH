@@ -97,6 +97,16 @@ PROJECT_LOGS_DIR = "$PROJECT_LOGS_DIR"
 # ==============================================================================
 [binance]
 
+# Whether orders reach the exchange for real.
+#
+# Absent or false, every order is validated with Binance's `new_order_test` and
+# never executed: no capital moves. `manage.py check` reports binance.W001
+# while this is off, so a deployment that meant to trade is told why it is not.
+#
+# This replaced a DEBUG-derived switch in Sprint #003. DEBUG=false used to mean
+# "trade", so any non-debug environment placed real orders.
+LIVE_TRADING = false
+
 # --- Your Binance API key/secret (Trading permissions enabled) ---
 # These are secrets. The actual values are defined in the .env file.
 API_KEY = "$API_KEY"

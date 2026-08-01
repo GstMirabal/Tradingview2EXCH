@@ -4,6 +4,30 @@ from django.db import models
 class Webhook(models.Model):
     """A single TradingView alert received and (optionally) forwarded to an exchange."""
 
+    class ExecutionStatus(models.TextChoices):
+        """What is known about this alert's order at the exchange.
+
+        The distinction that matters is REJECTED against UNKNOWN. A rejected
+        order provably did not execute, so resending the same `order_id` is
+        safe. An unknown one might have executed with the response lost in
+        transit, and resending it could place a second real order — so it stays
+        blocked and needs a human.
+        """
+
+        PENDING = 'PENDING', 'Received, exchange not yet called'
+        EXECUTED = 'EXECUTED', 'Accepted by the exchange'
+        REJECTED = 'REJECTED', 'Refused by the exchange; safe to retry'
+        UNKNOWN = 'UNKNOWN', 'Call failed without proving non-execution'
+
+    # Outcome of the exchange call for this alert. Governs whether a repeated
+    # `order_id` is a duplicate to reject or a retry to allow.
+    execution_status = models.CharField(
+        max_length=10,
+        choices=ExecutionStatus.choices,
+        default=ExecutionStatus.PENDING,
+        db_index=True,
+    )
+
     # Trading pair symbol associated with the alert.
     symbol = models.CharField(max_length=30)
 

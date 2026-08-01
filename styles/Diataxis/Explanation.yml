@@ -1,0 +1,17 @@
+extends: existence
+message: "Explanation-register language found in a Reference document — link the rationale to an ADR instead of stating it inline (rules/documentation_standard.md §1)."
+level: warning
+ignorecase: true
+tokens:
+  - 'we decided'
+  - 'instead of'
+  - 'alternative'
+  - 'trade-off'
+  - 'chose \S+ over \S+'
+  - 'to avoid'
+  - 'to prevent'
+  - 'to ensure'
+  - 'deferred .+ to'
+  - 'rather than'
+  - 'so that'
+  - 'so as to'
