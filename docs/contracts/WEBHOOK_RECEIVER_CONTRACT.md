@@ -69,10 +69,11 @@ refused. A caller tells them apart by body shape, not by status.
 | absent or `false` | `new_order_test` | Validated by Binance, never executed. No capital moves. |
 | `true` | `new_order` | **A live order.** Capital moves. |
 
-The default is not trading. `manage.py check` reports `binance.W001` while it
-is off, because a project that meant to trade and never set the flag would
+The default is not trading. `manage.py check` reports `binance.W001` when the
+key is **absent**, because a project that meant to trade and never set it would
 otherwise validate every order, execute none, and answer `201` throughout —
-with a strategy that simply never seems to fill.
+with a strategy that simply never seems to fill. Writing `false` is a decision
+and draws no warning.
 
 Until Sprint #003 this derived from `DEBUG`, so any environment running
 `DEBUG=false` placed real orders, and a production host left with `DEBUG=true`

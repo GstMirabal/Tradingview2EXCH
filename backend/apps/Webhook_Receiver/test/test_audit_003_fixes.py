@@ -128,12 +128,22 @@ class TradingModeTests(TestCase):
         """And the flag is what decides, not the presentation setting."""
         self.assertEqual(self._call(), 'new_order')
 
-    @override_settings(BINANCE_LIVE_TRADING=False)
-    def test_disabled_trading_is_reported_at_startup(self) -> None:
-        """Silence is the failure mode, so it needs a check."""
+    @override_settings(BINANCE_LIVE_TRADING_DECLARED=False)
+    def test_undeclared_trading_mode_is_reported_at_startup(self) -> None:
+        """Nobody decided, and silence is the failure mode."""
         self.assertIn('binance.W001', {m.id for m in run_checks()})
 
-    @override_settings(BINANCE_LIVE_TRADING=True)
-    def test_enabled_trading_is_not_reported(self) -> None:
-        """A warning on a correct configuration teaches people to ignore warnings."""
+    @override_settings(BINANCE_LIVE_TRADING_DECLARED=True, BINANCE_LIVE_TRADING=False)
+    def test_an_explicit_no_is_not_reported(self) -> None:
+        """Writing `false` is a decision.
+
+        Warning on it would fire on every correct dry-run deployment and on
+        every CI run — a pipeline must never trade — which is how a check
+        becomes noise people filter out.
+        """
+        self.assertNotIn('binance.W001', {m.id for m in run_checks()})
+
+    @override_settings(BINANCE_LIVE_TRADING_DECLARED=True, BINANCE_LIVE_TRADING=True)
+    def test_an_explicit_yes_is_not_reported(self) -> None:
+        """Trading deliberately is not a problem to report."""
         self.assertNotIn('binance.W001', {m.id for m in run_checks()})

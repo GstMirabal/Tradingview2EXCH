@@ -41,7 +41,7 @@ Data model (summary only):
 2. `BinanceParamsSerializer` validates the payload; `validate_exchange` accepts `'BINANCE'` case-insensitively.
 3. `BinanceParamsView.post()` persists the validated record via `serializer.save()`.
 4. The view calls `binance_service.execute_order(...)`. `BinanceService.client` lazily instantiates a `binance.spot.Spot` client from `config['binance']['API_KEY']` / `API_SECRET`, raising `ValueError` if either is missing.
-5. If `settings.BINANCE_LIVE_TRADING` is `True`, `execute_order` calls `client.new_order(**params)` (a live order against `https://api1.binance.com`). Otherwise it calls `client.new_order_test(**params)` (dry-run validation, no real order). The setting is `False` unless `[binance].LIVE_TRADING` says otherwise, and `binance.W001` reports that state at startup.
+5. If `settings.BINANCE_LIVE_TRADING` is `True`, `execute_order` calls `client.new_order(**params)` (a live order against `https://api1.binance.com`). Otherwise it calls `client.new_order_test(**params)` (dry-run validation, no real order). The setting is `False` unless `[binance].LIVE_TRADING` says otherwise, and `binance.W001` reports the key being absent altogether.
 6. The Binance response (or a caught `ClientError` / generic `Exception`) is returned to the caller as JSON.
 7. `GET /binance-connector/status/` (`BinanceStatusView`, also `IsAdminUser`) returns `BinanceService.get_system_status()` and `get_user_assets()` for operational checks.
 

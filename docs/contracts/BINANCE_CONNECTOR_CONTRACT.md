@@ -99,7 +99,7 @@ so `new_order_test` validates against production with production credentials.
 | :--- | :--- |
 | `[binance].API_KEY`, `[binance].API_SECRET` | Without them, the first order raises `ValueError`. Read once at import. |
 | A staff user | Both endpoints are `IsAdminUser`; no anonymous access exists. |
-| `[binance].LIVE_TRADING` | False by default, so nothing trades until it is set. `binance.W001` reports the state at startup. |
+| `[binance].LIVE_TRADING` | False by default, so nothing trades until it is set to `true`. `binance.W001` reports the key being absent; an explicit `false` is silent. |
 
 ---
 *Extracted against `views.py`, `serializers.py`, `models.py` and `services.py`,

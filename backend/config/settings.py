@@ -353,9 +353,14 @@ REST_FRAMEWORK = {
 # down. `apps.Binance_Connector.checks` reports the omission at startup, so a
 # deployment that meant to trade is told why it is not.
 # ------------------------------------------------------------------------------
+_binance_config = config.get('binance', {})
 BINANCE_LIVE_TRADING: bool = _config_bool(
-    config.get('binance', {}).get('LIVE_TRADING'), default=False
+    _binance_config.get('LIVE_TRADING'), default=False
 )
+# Whether the project stated a choice at all. Writing `false` is a decision and
+# needs no warning; omitting the key means nobody decided, and that is what
+# `binance.W001` exists to say.
+BINANCE_LIVE_TRADING_DECLARED: bool = 'LIVE_TRADING' in _binance_config
 
 
 # ==============================================================================
