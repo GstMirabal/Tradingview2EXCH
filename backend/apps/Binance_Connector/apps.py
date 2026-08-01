@@ -6,3 +6,7 @@ class BinanceConnectorConfig(AppConfig):
 
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.Binance_Connector'
+
+    def ready(self) -> None:
+        """Register the startup checks for this app's configuration."""
+        from . import checks  # noqa: F401

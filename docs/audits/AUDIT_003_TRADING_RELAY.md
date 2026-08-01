@@ -24,8 +24,8 @@ Every finding was reproduced by execution.
 
 | # | Finding | Severity | Status |
 | :--- | :--- | :--- | :--- |
-| **T-001** | A rejected order permanently blocks its own retry | **High** | Open |
-| **T-002** | `DEBUG` decides whether an order is real | **High** | Open |
+| **T-001** | A rejected order permanently blocks its own retry | **High** | **Fixed** |
+| **T-002** | `DEBUG` decides whether an order is real | **High** | **Fixed** |
 | T-003 | Throttle counters live in a per-process cache | Medium | Fixed |
 | T-004 | Only one of four entrypoints loaded `.env`, and it overwrote the environment | Medium | Fixed |
 | T-005 | Order parameters and full exchange responses logged at `INFO` | Medium | Partly fixed |
@@ -62,9 +62,15 @@ duplicate delivery placing a second order — a real risk, correctly identified 
 but it also defeats the retry of an order that never executed. The blueprint
 describes the protective half and not this one.
 
-A fix has to separate *received* from *executed*: keep the idempotency key,
-record the outcome, and let a retry through when the previous attempt did not
-reach the exchange.
+**Fixed.** `Webhook.execution_status` records the outcome, and only `REJECTED`
+reopens the alert for retry.
+
+The distinction that makes this safe is `REJECTED` against `UNKNOWN`. A timeout
+means the request may have reached Binance and filled, with only the response
+lost — so resending could place a second real order. Those stay blocked and
+need reconciliation against the exchange. Reopening every failure would have
+converted lost trades into duplicated ones, which is worse; a regression test
+holds that line.
 
 ### T-002 · `DEBUG` decides whether an order is real — **High**
 
@@ -90,9 +96,15 @@ This is documented in `BINANCE_CONNECTOR_BLUEPRINT.md` §6 as a constraint,
 which is accurate but frames a hazard as a safeguard. The behaviour is not
 hidden; the coupling is the defect.
 
-A dedicated setting — `BINANCE_LIVE_TRADING`, defaulting to false and read
-independently of `DEBUG` — makes the intent explicit and lets production run
-`DEBUG=false` without that also meaning "trade".
+**Fixed.** `BINANCE_LIVE_TRADING` is read from `[binance].LIVE_TRADING` and
+defaults to false, so `DEBUG=false` no longer means "trade" and trading for
+real requires writing it down. `binance.W001` reports the state at startup,
+because a project that meant to trade and never set the flag would otherwise
+validate every order, execute none, and answer `201` throughout.
+
+The default is deliberately fail-safe, and it is a breaking change: a
+deployment that relied on `DEBUG=false` to trade must set `LIVE_TRADING = true`
+before upgrading, or it stops trading. Recorded in the ledger as such.
 
 ### T-003 · Throttle counters in a per-process cache — Medium · **Fixed**
 
@@ -212,5 +224,5 @@ and produced nothing.
   not of this code. It is worth confirming, and cannot be confirmed from here.
 
 ---
-*Findings feed `docs/roadmaps/GLOBAL_ROADMAP.md`. T-001 and T-002 are open and
-carry capital risk.*
+*Findings feed `docs/roadmaps/GLOBAL_ROADMAP.md`. Both capital-risk findings
+are closed, each with a regression test checked to fail without its fix.*

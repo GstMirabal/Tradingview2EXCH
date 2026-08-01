@@ -194,20 +194,20 @@ class WebhookReceivedViewTests(APITestCase):
     def test_duplicate_order_id_is_rejected_not_re_executed(
         self, mock_execute_order: Mock
     ) -> None:
-        """A retried alert with the same order_id is rejected, not re-executed.
+        """A redelivered alert that already executed is refused, not re-sent.
 
-        `order_id`'s `unique=True` gives the ModelSerializer an automatic
-        uniqueness check, so the retry fails validation (400) before ever
-        reaching Binance — the important property is that it's rejected
-        and `execute_order` is never called a second time, not the exact
-        status code.
+        Since Sprint #003 the refusal is a 409 carrying the execution status,
+        rather than a 400 from the serializer's uniqueness check. The status
+        distinction is what lets a *rejected* order be retried while an
+        executed one stays blocked (audit T-001); the property that matters
+        here is unchanged — `execute_order` is never called a second time.
         """
         mock_execute_order.return_value = {'msg': 'ok'}
         first = self._post(self.valid_payload)
         self.assertEqual(first.status_code, status.HTTP_201_CREATED)
 
         second = self._post({**self.valid_payload, 'time': '2024-05-30T11:26:00Z'})
-        self.assertEqual(second.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(second.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(Webhook.objects.count(), 1)
         mock_execute_order.assert_called_once()
 

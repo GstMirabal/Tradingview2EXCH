@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from apps.Binance_Connector.services import binance_service
 from apps.core.permissions import HasWebhookPassphrase
 
+from .models import Webhook
 from .serializers import WebhookSerializer
 
 logger = logging.getLogger('project')
@@ -109,20 +110,50 @@ class WebhookReceivedView(APIView):
             rejects a TradingView webhook retry before it ever reaches
             Binance) or a Binance client error, 500 on an unexpected failure.
         """
-        serializer = WebhookSerializer(data=request.data)
+        order_id = request.data.get('order_id')
+
+        # A repeated order_id is usually TradingView redelivering an alert it
+        # already sent, and refusing it is what stops a second real order. It
+        # is also what a legitimate retry looks like after the exchange refused
+        # the first attempt — and until Sprint #003 both were refused alike, so
+        # a trade Binance rejected could never be placed at all.
+        existing = (
+            Webhook.objects.filter(order_id=order_id).first() if order_id else None
+        )
+        if existing and existing.execution_status != Webhook.ExecutionStatus.REJECTED:
+            logger.warning(
+                'Duplicate order_id rejected: %s (status=%s)',
+                order_id,
+                existing.execution_status,
+            )
+            return Response(
+                {
+                    'error': 'This order_id has already been processed.',
+                    'execution_status': existing.execution_status,
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        # Retry of a provably unexecuted order reuses the row rather than
+        # creating a second record of one alert.
+        serializer = (
+            WebhookSerializer(existing, data=request.data)
+            if existing
+            else WebhookSerializer(data=request.data)
+        )
         if not serializer.is_valid():
             logger.error('Invalid webhook payload: %s', serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            serializer.save()
-        except IntegrityError:
-            # Defense-in-depth for a race between two concurrent requests
-            # both passing the serializer's uniqueness check before either
-            # commits — the DB's UNIQUE constraint is the real guarantee.
-            logger.warning(
-                'Duplicate order_id rejected: %s', request.data.get('order_id')
+            webhook = serializer.save(
+                execution_status=Webhook.ExecutionStatus.PENDING
             )
+        except IntegrityError:
+            # A race between two concurrent requests both passing the check
+            # above before either commits. The UNIQUE constraint is the real
+            # guarantee.
+            logger.warning('Duplicate order_id rejected in a race: %s', order_id)
             return Response(
                 {'error': 'This order_id has already been processed.'},
                 status=status.HTTP_409_CONFLICT,
@@ -135,22 +166,43 @@ class WebhookReceivedView(APIView):
                 order_type=serializer.data.get('type'),
                 quantity=serializer.data.get('size'),
             )
-            return Response(
-                {
-                    'message': 'Webhook received and processed by exchange',
-                    'exchange_response': response,
-                },
-                status=status.HTTP_201_CREATED,
-            )
         except ClientError as e:
+            # The exchange answered and refused. The order provably did not
+            # execute, so this alert stays retryable.
+            webhook.execution_status = Webhook.ExecutionStatus.REJECTED
+            webhook.save(update_fields=['execution_status'])
+            logger.warning(
+                'Order rejected by Binance, retry allowed: %s (%s)',
+                order_id,
+                e.error_message,
+            )
             return Response(
                 {'error': f'Binance Client Error: {e.error_message}'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # API boundary: never leak a 500 traceback, always log + respond JSON.
         except Exception:  # noqa: BLE001
-            logger.exception('Internal error processing webhook')
+            # Anything else — a timeout above all — leaves it unknown whether
+            # the order reached the exchange. Resending could place a second
+            # real order, so this one is NOT reopened for retry.
+            webhook.execution_status = Webhook.ExecutionStatus.UNKNOWN
+            webhook.save(update_fields=['execution_status'])
+            logger.exception(
+                'Webhook processing failed with an undetermined outcome; '
+                'order_id %s is blocked pending manual reconciliation',
+                order_id,
+            )
             return Response(
                 {'error': 'Internal error processing webhook.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+        webhook.execution_status = Webhook.ExecutionStatus.EXECUTED
+        webhook.save(update_fields=['execution_status'])
+        return Response(
+            {
+                'message': 'Webhook received and processed by exchange',
+                'exchange_response': response,
+            },
+            status=status.HTTP_201_CREATED,
+        )

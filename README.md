@@ -54,7 +54,7 @@
 This project receives TradingView alerts over a passphrase-gated webhook and executes the corresponding order on Binance. It's a single Django project (`backend/`) with a Service Layer wrapping the `binance-connector` SDK, security-hardened settings, and a SQLite database.
 
 > [!WARNING]
-> **This software places real trades with real money.** Read [`SECURITY.md`](SECURITY.md) before deploying — it covers API key restrictions, HTTPS requirements, and the disclaimer of liability. Start with `DEBUG=True`, which routes orders to Binance's dry-run endpoint instead of executing them.
+> **This software places real trades with real money.** Read [`SECURITY.md`](SECURITY.md) before deploying — it covers API key restrictions, HTTPS requirements, and the disclaimer of liability. Nothing trades until you set `LIVE_TRADING = true` under `[binance]` in `config.toml`; without it every order goes to Binance's dry-run endpoint. `manage.py check` tells you which mode you are in.
 
 ### Key Features:
 - **Modular Structure**: separate apps for webhook intake (`Webhook_Receiver`) and Binance execution (`Binance_Connector`).

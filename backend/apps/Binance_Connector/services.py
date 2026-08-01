@@ -72,12 +72,15 @@ class BinanceService:
 
             logger.info('Executing order with params: %s', params)
 
-            if settings.DEBUG:
-                logger.info('Running in DEBUG mode, using test_order.')
-                response = self.client.new_order_test(**params)
-            else:
-                logger.info('Running in Production mode, executing REAL order.')
+            if settings.BINANCE_LIVE_TRADING:
+                logger.info('Live trading enabled: executing a REAL order.')
                 response = self.client.new_order(**params)
+            else:
+                logger.info(
+                    'Live trading disabled: validating with new_order_test, '
+                    'no capital moves.'
+                )
+                response = self.client.new_order_test(**params)
 
             logger.info('Order completed: %s', response)
             return response

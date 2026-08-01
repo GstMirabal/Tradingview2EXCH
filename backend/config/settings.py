@@ -339,6 +339,26 @@ REST_FRAMEWORK = {
 
 
 # ==============================================================================
+# SECTION 6.4: EXCHANGE TRADING MODE
+# ==============================================================================
+# Whether an order reaches the exchange for real.
+#
+# This was derived from DEBUG until Sprint #003, which coupled a Django
+# presentation flag to capital movement and cut both ways: any environment
+# running DEBUG=false placed live orders, and a production host left with
+# DEBUG=true stopped trading while still answering 201.
+#
+# Absent, it is False: the connector calls `new_order_test`, which the exchange
+# validates and never executes. Trading with real money now requires writing it
+# down. `apps.Binance_Connector.checks` reports the omission at startup, so a
+# deployment that meant to trade is told why it is not.
+# ------------------------------------------------------------------------------
+BINANCE_LIVE_TRADING: bool = _config_bool(
+    config.get('binance', {}).get('LIVE_TRADING'), default=False
+)
+
+
+# ==============================================================================
 # SECTION 6.5: CACHE CONFIGURATION
 # ==============================================================================
 # Declared explicitly rather than left to Django's implicit per-process

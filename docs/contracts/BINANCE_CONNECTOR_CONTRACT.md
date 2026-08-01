@@ -12,9 +12,9 @@ rationale. The reasoning lives in
 `docs/architecture/BINANCE_CONNECTOR_BLUEPRINT.md`.
 
 > [!WARNING]
-> `POST binance-params/` executes a live order on Binance whenever `DEBUG` is
-> false, exactly as the webhook endpoint does. It is a manual order-entry
-> surface, not a dry run.
+> `POST binance-params/` executes a live order on Binance when
+> `[binance].LIVE_TRADING` is true, exactly as the webhook endpoint does. It is
+> a manual order-entry surface, not a dry run.
 
 ## `POST /binance-connector/binance-params/`
 
@@ -80,10 +80,10 @@ the Swagger UI that documents it is served only when `DEBUG` is true.
 directly by `apps.Webhook_Receiver.views` as the module-level singleton
 `binance_service`. It is an in-process call, not HTTP.
 
-| `DEBUG` | Binance call | Effect |
+| `LIVE_TRADING` | Binance call | Effect |
 | :--- | :--- | :--- |
-| `true` | `new_order_test` | Validated by Binance, never executed. |
-| `false` | `new_order` | **A live order.** |
+| absent or `false` | `new_order_test` | Validated by Binance, never executed. |
+| `true` | `new_order` | **A live order.** |
 
 `BinanceService.client` is built lazily on first use and raises `ValueError`
 when `API_KEY` or `API_SECRET` is missing. Because `binance_service` is
@@ -99,7 +99,7 @@ so `new_order_test` validates against production with production credentials.
 | :--- | :--- |
 | `[binance].API_KEY`, `[binance].API_SECRET` | Without them, the first order raises `ValueError`. Read once at import. |
 | A staff user | Both endpoints are `IsAdminUser`; no anonymous access exists. |
-| `DEBUG` set deliberately | It selects between a dry run and a live order. |
+| `[binance].LIVE_TRADING` | False by default, so nothing trades until it is set. `binance.W001` reports the state at startup. |
 
 ---
 *Extracted against `views.py`, `serializers.py`, `models.py` and `services.py`,

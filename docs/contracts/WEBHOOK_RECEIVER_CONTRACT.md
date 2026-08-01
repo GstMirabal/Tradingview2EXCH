@@ -12,8 +12,8 @@ reasoning lives in `docs/architecture/WEBHOOK_RECEIVER_BLUEPRINT.md` and the
 ADRs it links.
 
 > [!WARNING]
-> A successful call to this endpoint executes a live order on Binance whenever
-> `DEBUG` is false. No separate trading-mode switch exists — see *Execution
+> A successful call to this endpoint executes a live order on Binance when
+> `[binance].LIVE_TRADING` is true. It is false by default — see *Execution
 > mode* below.
 
 ## `POST /webhook-receiver/webhook/`
@@ -61,30 +61,43 @@ refused. A caller tells them apart by body shape, not by status.
 
 ### Execution mode
 
-`execute_order` selects its Binance call from `settings.DEBUG`:
+`execute_order` selects its Binance call from `BINANCE_LIVE_TRADING`, set by
+`[binance].LIVE_TRADING` in `config.toml`:
 
-| `DEBUG` | Binance call | Effect |
+| `LIVE_TRADING` | Binance call | Effect |
 | :--- | :--- | :--- |
-| `true` | `new_order_test` | Validated by Binance, never executed. No capital moves. |
-| `false` | `new_order` | **A live order.** Capital moves. |
+| absent or `false` | `new_order_test` | Validated by Binance, never executed. No capital moves. |
+| `true` | `new_order` | **A live order.** Capital moves. |
 
-No independent trading-mode setting exists. Any deployment running with
-`DEBUG=false` — staging, a smoke test, a misconfigured development box — places
-real orders against `https://api1.binance.com` with the configured API
-credentials. The reverse holds too: a production host left with `DEBUG=true`
-stops trading silently while continuing to answer `201`.
+The default is not trading. `manage.py check` reports `binance.W001` while it
+is off, because a project that meant to trade and never set the flag would
+otherwise validate every order, execute none, and answer `201` throughout —
+with a strategy that simply never seems to fill.
+
+Until Sprint #003 this derived from `DEBUG`, so any environment running
+`DEBUG=false` placed real orders, and a production host left with `DEBUG=true`
+stopped trading in silence. A deployment upgrading across that change must set
+`LIVE_TRADING = true` **before** deploying, or it stops trading.
 
 ### Retries
 
-`order_id` is unique, which makes it the idempotency key. A repeated value is
-rejected before Binance is called, so a duplicated TradingView delivery cannot
-place a second order.
+`order_id` is the idempotency key, and what a repeated one means depends on
+what happened to the first attempt. Each alert carries an `execution_status`:
 
-The record is written **before** the exchange call, and is not rolled back when
-that call fails. An alert whose order Binance rejected therefore leaves a row
-behind, and a later retry of the same `order_id` is refused with `400` or `409`
-— reporting a duplicate for an order that never executed. A caller needing that
-trade must resend under a new `order_id`.
+| Status | Meaning | A repeated `order_id` is |
+| :--- | :--- | :--- |
+| `PENDING` | Received; the exchange call has not returned | Refused, `409` |
+| `EXECUTED` | The exchange accepted the order | Refused, `409` |
+| `REJECTED` | The exchange answered and refused it | **Accepted** — the order provably did not execute, so it is retried on the same row |
+| `UNKNOWN` | The call failed without proving non-execution | Refused, `409` |
+
+`UNKNOWN` is the case worth understanding. A timeout means the request may have
+reached Binance and filled, with only the response lost. Resending would risk a
+second real order, so it stays blocked and needs a human to reconcile against
+the exchange.
+
+Until Sprint #003 every repeat was refused alike, so an order Binance rejected
+could never be placed at all: the trade was lost and reported as a duplicate.
 
 ### Rate limit
 

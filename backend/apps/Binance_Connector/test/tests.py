@@ -163,9 +163,15 @@ class BinanceParamsViewTests(APITestCase):
         )
 
     @patch('binance.spot.Spot.new_order', return_value={'msg': 'Order created'})
-    @override_settings(DEBUG=False)
-    def test_valid_payload_production_mode(self, mock_new_order: Mock) -> None:
-        """Outside DEBUG mode, a valid payload places a real order."""
+    @override_settings(BINANCE_LIVE_TRADING=True)
+    def test_valid_payload_places_a_real_order_when_live(
+        self, mock_new_order: Mock
+    ) -> None:
+        """With live trading on, a valid payload places a real order.
+
+        Keyed to BINANCE_LIVE_TRADING since Sprint #003. It was DEBUG=False,
+        which meant any non-debug environment traded (audit T-002).
+        """
         self.client.login(username='staffuser', password='TestPassword123!')
         response = self.client.post(self.url, self.valid_payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -265,11 +271,11 @@ class BinanceServiceTests(TestCase):
         )
 
     @patch('binance.spot.Spot.new_order', return_value={'msg': 'ok'})
-    @override_settings(DEBUG=False)
-    def test_execute_order_production_mode_uses_real_order(
+    @override_settings(BINANCE_LIVE_TRADING=True)
+    def test_execute_order_uses_real_order_when_live(
         self, mock_new_order: Mock
     ) -> None:
-        """Outside DEBUG mode, the real order-placement SDK call is used."""
+        """With live trading on, the real order-placement SDK call is used."""
         response = self.service.execute_order('btcusdt', 'buy', 'market', '0.001')
         self.assertEqual(response, {'msg': 'ok'})
         mock_new_order.assert_called_once()
