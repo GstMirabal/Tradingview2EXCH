@@ -38,6 +38,31 @@ logger = logging.getLogger('django')
 default_base_dir: Path = Path(__file__).resolve().parent.parent.parent
 env_base_dir: str | None = os.environ.get('BASE_DIR')
 BASE_DIR: Path = Path(env_base_dir) if env_base_dir else default_base_dir
+
+# `.env` is loaded here, not in `manage.py`.
+#
+# Every entrypoint imports settings; only one imports `manage.py`. Loading it
+# there meant `wsgi`, `asgi` and any test runner started without it — and those
+# first two are how this project is actually served in production.
+#
+# `setdefault`, not assignment. The previous loader assigned, so a value
+# exported by the shell, the container or the orchestrator was overwritten by
+# whatever `.env` happened to hold. `DEBUG=false ./manage.py check --deploy`
+# read `DEBUG` back as true and validated nothing. That matters more here than
+# in most projects: `DEBUG` also selects between a Binance dry run and a live
+# order (`docs/contracts/WEBHOOK_RECEIVER_CONTRACT.md`).
+env_file = BASE_DIR / '.env'
+if env_file.exists():
+    with env_file.open(encoding='utf-8') as env_handle:
+        for raw_line in env_handle:
+            stripped = raw_line.strip()
+            if not stripped or stripped.startswith('#') or '=' not in stripped:
+                continue
+            env_key, env_value = stripped.split('=', 1)
+            os.environ.setdefault(
+                env_key.strip(), env_value.strip().strip('"').strip("'")
+            )
+
 config_path = BASE_DIR / 'config.toml'
 
 try:
