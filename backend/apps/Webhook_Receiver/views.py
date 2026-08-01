@@ -146,9 +146,7 @@ class WebhookReceivedView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            webhook = serializer.save(
-                execution_status=Webhook.ExecutionStatus.PENDING
-            )
+            webhook = serializer.save(execution_status=Webhook.ExecutionStatus.PENDING)
         except IntegrityError:
             # A race between two concurrent requests both passing the check
             # above before either commits. The UNIQUE constraint is the real

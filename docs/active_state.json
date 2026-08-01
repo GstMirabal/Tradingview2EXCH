@@ -18,32 +18,34 @@
     }
   ],
   "topology_map": [
-    "backend/config/",
-    "backend/apps/core/",
+    ".agents/",
+    "CHANGELOG.md",
     "backend/apps/Binance_Connector/",
     "backend/apps/Webhook_Receiver/",
-    "docker/DockerFile",
-    "docker-compose.yml",
+    "backend/apps/core/",
+    "backend/config/",
     "config.toml",
+    "docker-compose.yml",
+    "docker/DockerFile",
     "docs/0_SYSTEM_OVERVIEW.md",
     "docs/active_state.json",
-    "docs/roadmaps/",
-    "docs/sprints/",
     "docs/architecture/",
-    "docs/walkthroughs/",
+    "docs/audits/",
     "docs/contracts/",
     "docs/decisions/",
     "docs/guides/",
+    "docs/roadmaps/",
+    "docs/sprints/",
+    "docs/sprints/003-backend-hardening/",
     "docs/standards/",
-    "CHANGELOG.md",
-    ".agents/"
+    "docs/walkthroughs/"
   ],
   "legacy_flags": {},
   "sprint_001_note": "Legacy root-level Binance_Connector/, Webhook_Receiver/, tradingview2exch/, and root manage.py (flagged in legacy_flags above during Sprint 000 onboarding) were deleted in Sprint 001 after confirming Docker's entrypoint.sh actually booted the unauthenticated legacy project in production. legacy_flags is now empty — nothing legacy remains.",
   "current_sprint": {
     "id": 3,
-    "last_audit_sprint": 2,
-    "last_audit_commit_sha": "c236cfa",
-    "status": "IN_PROGRESS"
+    "last_audit_sprint": 3,
+    "last_audit_commit_sha": "41e3b81",
+    "status": "CLOSED"
   }
 }
