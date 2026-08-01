@@ -111,7 +111,7 @@ class WebhookReceivedView(APIView):
         """
         serializer = WebhookSerializer(data=request.data)
         if not serializer.is_valid():
-            logger.error(f'Invalid webhook payload: {serializer.errors}')
+            logger.error('Invalid webhook payload: %s', serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -121,7 +121,7 @@ class WebhookReceivedView(APIView):
             # both passing the serializer's uniqueness check before either
             # commits — the DB's UNIQUE constraint is the real guarantee.
             logger.warning(
-                f'Duplicate order_id rejected: {request.data.get("order_id")}'
+                'Duplicate order_id rejected: %s', request.data.get('order_id')
             )
             return Response(
                 {'error': 'This order_id has already been processed.'},
@@ -148,8 +148,8 @@ class WebhookReceivedView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # API boundary: never leak a 500 traceback, always log + respond JSON.
-        except Exception as e:  # noqa: BLE001
-            logger.error(f'Internal error processing webhook: {str(e)}')
+        except Exception:  # noqa: BLE001
+            logger.exception('Internal error processing webhook')
             return Response(
                 {'error': 'Internal error processing webhook.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

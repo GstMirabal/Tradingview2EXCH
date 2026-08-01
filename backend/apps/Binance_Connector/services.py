@@ -70,7 +70,7 @@ class BinanceService:
                 'quantity': quantity,
             }
 
-            logger.info(f'Executing order with params: {params}')
+            logger.info('Executing order with params: %s', params)
 
             if settings.DEBUG:
                 logger.info('Running in DEBUG mode, using test_order.')
@@ -79,15 +79,15 @@ class BinanceService:
                 logger.info('Running in Production mode, executing REAL order.')
                 response = self.client.new_order(**params)
 
-            logger.info(f'Order completed: {response}')
+            logger.info('Order completed: %s', response)
             return response
         except ClientError as e:
             logger.error(
-                f'Binance Client Error: {e.error_message} (Code: {e.error_code})'
+                'Binance Client Error: %s (Code: %s)', e.error_message, e.error_code
             )
             raise
-        except Exception as e:
-            logger.error(f'Unexpected error in BinanceService: {str(e)}')
+        except Exception:
+            logger.exception('Unexpected error in BinanceService')
             raise
 
     def get_system_status(self) -> dict[str, Any] | None:
@@ -99,7 +99,7 @@ class BinanceService:
         try:
             return self.client.system_status()
         except ClientError as e:
-            logger.error(f'Error checking system status: {e}')
+            logger.error('Error checking system status: %s', e)
             return None
 
     def get_user_assets(self) -> dict[str, Any] | None:
@@ -111,7 +111,7 @@ class BinanceService:
         try:
             return self.client.user_asset()
         except ClientError as e:
-            logger.error(f'Error getting user assets: {e}')
+            logger.error('Error getting user assets: %s', e)
             return None
 
 

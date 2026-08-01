@@ -51,6 +51,6 @@ class HasWebhookPassphrase(permissions.BasePermission):
 
         remote_addr = request.META.get('REMOTE_ADDR')
         logger.warning(
-            f'Unauthorized access attempt with invalid passphrase from {remote_addr}'
+            'Unauthorized access attempt with invalid passphrase from %s', remote_addr
         )
         return False

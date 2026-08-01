@@ -314,7 +314,7 @@ try:
             'NAME': BASE_DIR / sqlite_db_name,
         }
     }
-    logger.info(f'Using SQLite database at {BASE_DIR / sqlite_db_name}')
+    logger.info('Using SQLite database at %s', BASE_DIR / sqlite_db_name)
 
 except (KeyError, ValueError) as e:
     raise ImproperlyConfigured(

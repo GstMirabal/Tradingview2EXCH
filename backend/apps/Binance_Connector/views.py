@@ -76,7 +76,7 @@ class BinanceParamsView(APIView):
         """
         serializer = BinanceParamsSerializer(data=request.data)
         if not serializer.is_valid():
-            logger.error(f'Invalid Binance params: {serializer.errors}')
+            logger.error('Invalid Binance params: %s', serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -97,8 +97,8 @@ class BinanceParamsView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # API boundary: never leak a 500 traceback, always log + respond JSON.
-        except Exception as e:  # noqa: BLE001
-            logger.error(f'Internal server error: {str(e)}')
+        except Exception:  # noqa: BLE001
+            logger.exception('Internal server error')
             return Response(
                 {'error': 'Internal server error.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
