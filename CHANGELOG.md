@@ -17,6 +17,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](
 > trading. `manage.py check` reports `binance.W001` while it is off.
 
 #### Fixed
+- **The container ran Python 3.12 while everything was tested on 3.13.** Every
+  verification in Sprint #003 — the suite, the production boot, gunicorn
+  serving — ran on a runtime the deployment does not use. Surfaced by a
+  Dependabot proposal to move to 3.14, which would have widened the gap rather
+  than closing it. Recorded as audit finding T-011, which that audit missed.
 - **A rejected order could never be retried.** The alert was persisted before
   the exchange call and never rolled back, and `order_id` is unique, so the
   retry TradingView sent was refused as a duplicate. Any transient exchange
