@@ -34,6 +34,7 @@ Every finding was reproduced by execution.
 | T-008 | Status endpoint cannot distinguish an outage from an empty account | Low | Open |
 | T-009 | Credentials are read once at import | Low | Documented |
 | T-010 | `new_order_test` runs against the production endpoint | Low | Documented |
+| **T-011** | The container ran a different Python from everything tested | Medium | **Fixed** |
 
 ---
 
@@ -191,6 +192,26 @@ a restart, not a configuration reload. Stated in
 the dry-run path validates against the production endpoint using production
 credentials. It places no order, but it is not an isolated environment either.
 
+### T-011 · The container ran a Python nothing had tested — Medium · **Fixed**
+
+`docker/DockerFile` pinned `python:3.12-slim` while CI and every local
+environment ran 3.13. Each verification in this report — the 71 tests, the
+production boot under a real `DEBUG=False`, gunicorn actually serving — was
+performed on a runtime the deployment does not use.
+
+**This audit missed it.** Section 4 listed what the protocol could not reach —
+live-exchange behaviour, concurrency, the API key's scope — and none of those
+is this. The gap was closer to home: the report never compared the runtime it
+tested against the runtime it ships.
+
+Surfaced by a Dependabot pull request proposing `3.14-slim`, which would have
+widened the divergence rather than closing it. The Dockerfile is now `3.13-slim`
+and all three layers agree. Verified by building the image and running Python
+inside it (`3.13.14`), not by reading the tag.
+
+The same check found `Django-Pro-Template` already consistent at 3.13, and
+`django-users-app` correctly shipping no container at all.
+
 ---
 
 ## 3. Checked and clean
@@ -206,6 +227,7 @@ and produced nothing.
 | Clean environment with only `requirements.txt` | Imports and passes `check`; no undeclared dependency |
 | Full-history sweep for committed secrets | `config.toml` was tracked in 28 commits, but held 29 `$VAR` references and zero literal secrets |
 | Production boot under real `DEBUG=False` | `check --deploy` reports nothing |
+| Container runtime matches the tested runtime | Python 3.13 in the image, in CI and in the local environment — checked by running `python -V` inside the built image |
 | Bandit rules over production code | Clean |
 | Documentation against the knowledge graph | Blueprints accurate; three false claims in the entry point, since corrected |
 
