@@ -45,12 +45,12 @@ Done when: `gh api 'repos/{owner}/{repo}/dependabot/alerts?state=open' --jq leng
 
 | # | File | Operation | Risk | Assignee (proposed) | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | `requirements.txt` | modify — PR #22 `certifi` | low | `principal_agent` | ⏳ |
-| 2 | `requirements.txt` | modify — PR #23 `djangorestframework` | medium | `principal_agent` | ⏳ |
-| 3 | `requirements.txt` | modify — PR #18 `Django` | low | `principal_agent` | ⏳ |
-| 4 | `requirements.txt` | modify — PR #13 `sqlparse` | medium | `principal_agent` | ⏳ |
-| 5 | `.agents` (submodule pointer) | modify — pin `v4.39.1` | low | `devops_agent` | ⏳ |
-| 6 | `docs/0_SYSTEM_OVERVIEW.md` | modify — correct pin version | low | `doc_orchestrator` | ⏳ |
+| 1 | `requirements.txt` | modify — PR #22 `certifi` | low | `principal_agent` | ✅ |
+| 2 | `requirements.txt` | modify — PR #23 `djangorestframework` | medium | `principal_agent` | ✅ |
+| 3 | `requirements.txt` | modify — PR #18 `Django` | low | `principal_agent` | ✅ |
+| 4 | `requirements.txt` | modify — PR #13 `sqlparse` | medium | `principal_agent` | ✅ |
+| 5 | `.agents` (submodule pointer) | modify — pin `v4.39.1` | low | `devops_agent` | ✅ |
+| 6 | `docs/0_SYSTEM_OVERVIEW.md` | modify — correct pin version | low | `doc_orchestrator` | ✅ |
 
 ---
 
