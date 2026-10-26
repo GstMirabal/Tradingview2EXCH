@@ -1,0 +1,9 @@
+{
+  "nodes": 3287,
+  "edges": 3372,
+  "communities": 417,
+  "source": "graphify-out/graph.json",
+  "sprint": 4,
+  "built_at_commit": "d760801",
+  "note": "Counts read from the existing graph.json (built 2026-08-01). `make graphify-update` failed under the session sandbox with `Operation not permitted` and was not forced past it. Sprint 004 changed no file under backend/ (`git diff --stat 79a9531..HEAD -- backend/` is empty): only requirements.txt and docs/, so the AST graph of the source tree is unchanged."
+}

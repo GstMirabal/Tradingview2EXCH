@@ -95,9 +95,15 @@ db.sqlite3-wal
 /.claude/settings.local.json
 /graphify-out/
 
+# .agents session anchor. Untracked since Sprint #004, as in the .agents repo:
+# `session_state.py release` writes the sealed HEAD into it, so a tracked copy
+# can never match the commit it seals. Its durable half lives in the sprint
+# record and the ledger.
+/docs/active_state.json
+
 # .agents ephemeral session state — a crash-recovery mirror of
-# docs/active_state.json (which is the tracked source of truth), rewritten by
-# the framework's Stop hook. The .agents repo gitignores this same path.
+# docs/active_state.json, rewritten by the framework's Stop hook. The .agents
+# repo gitignores this same path.
 /.agent_state/
 /memory/
 

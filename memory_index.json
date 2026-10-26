@@ -1,0 +1,27 @@
+{
+  "last_update": "2026-10-26",
+  "sprint_id": "004",
+  "_schema": "Entries are summary-only Knowledge Items (agents.md §4). Only routing_class host is indexed here; nucleus-class items are drafted in docs/audits/AGENTS_UPSTREAM_FINDINGS.md.",
+  "items": [
+    {
+      "id": "KI-004-1",
+      "summary": "CodeQL default setup skips PRs that change only requirements.txt, so the required check Analyze (python) never reports and every Dependabot PR stays BLOCKED until merged with --admin or the required check is changed.",
+      "routing_class": "host"
+    },
+    {
+      "id": "KI-004-2",
+      "summary": "A Dependabot group PR can pin a version below the one a single-package PR just fixed (PR #21 pinned certifi 2026.10.18 after #22 shipped 2026.10.19), so read every group diff for downgrades before merging.",
+      "routing_class": "host"
+    },
+    {
+      "id": "KI-004-4",
+      "summary": "backend/config/settings.py stats .env at import and the session sandbox denies it, so run pytest on a copy without .env, using config.toml.example with dummy values for every $VAR it declares and BASE_DIR set to the copy root.",
+      "routing_class": "host"
+    },
+    {
+      "id": "KI-004-6",
+      "summary": "Inside the session sandbox gh and pip fail with TLS OSStatus -26276, so GitHub API and PyPI calls must run outside the sandbox.",
+      "routing_class": "host"
+    }
+  ]
+}
