@@ -8,6 +8,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](
 
 ## [Unreleased]
 
+### Sprint #004 — Backend / Dependencies
+
+#### Security
+- **`certifi` bundled root CAs with compromised intermediate keys** (critical,
+  GHSA-6q48-6c7w-9gw2). Raised to `2026.10.19`. `4eaf86a`
+- **`djangorestframework` 3.17.1 carried five advisories**, including a
+  `TokenProxy.delete()` that revoked nothing and an attacker-named codec in
+  `JSONParser`. Raised to `3.18.2`. `7bfc82f`
+- **`Django` 6.0.7 carried two GeoDjango advisories.** Raised to `6.0.8`. `95a2e63`
+- **`sqlparse` 0.5.5 carried five advisories**, four of them CPU denial of
+  service. Raised to `0.6.0`. `f93a8e0`
+
+#### Changed
+- `chore(deps): pin .agents to v4.39.1 #004` — from `v4.3.0-5-g763fe54`. `e222bd8`
+
 ### Sprint #003 — Backend / Hardening
 
 > [!WARNING]

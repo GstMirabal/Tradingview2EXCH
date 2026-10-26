@@ -8,7 +8,7 @@ This is the **Documentation Entry Point**. `agents.md §0 (Entry Point)` require
 ---
 
 ## 1. What this is
-Tradingview2EXCH is a **backend-only Django trading webhook relay**. It receives trading alerts fired from TradingView, validates and translates them, and forwards the resulting order intents to the Binance API. This project adopted the **Token-Optimized Agent Pipeline (`.agents`)** framework as a git submodule (pinned `v4.2.1`) at Sprint #000, onboarded under **Scenario C** (mature project, no prior docs, zero prior agentic traces) per `.agents/workflows/standardization_workflow.md` Phase 6 — Full Reverse Engineering.
+Tradingview2EXCH is a **backend-only Django trading webhook relay**. It receives trading alerts fired from TradingView, validates and translates them, and forwards the resulting order intents to the Binance API. This project adopted the **Token-Optimized Agent Pipeline (`.agents`)** framework as a git submodule at Sprint #000 (currently pinned `v4.39.1`, since Sprint #004), onboarded under **Scenario C** (mature project, no prior docs, zero prior agentic traces) per `.agents/workflows/standardization_workflow.md` Phase 6 — Full Reverse Engineering.
 
 ## 2. Architecture at a glance (C4 Level 1-2)
 
