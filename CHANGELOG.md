@@ -8,6 +8,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/) · Versioning: [SemVer](
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-26
+
+First tagged release. Seals Sprints #001 through #004.
+
 ### Sprint #004 — Backend / Dependencies
 
 #### Security
