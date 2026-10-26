@@ -14,5 +14,5 @@ pycparser==3.0
 python-json-logger==4.1.0
 sqlparse==0.5.5
 binance-connector==3.13.0
-djangorestframework==3.17.1
+djangorestframework==3.18.2
 drf-yasg==1.21.15
