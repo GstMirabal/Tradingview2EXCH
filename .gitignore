@@ -100,3 +100,10 @@ db.sqlite3-wal
 # the framework's Stop hook. The .agents repo gitignores this same path.
 /.agent_state/
 /memory/
+
+
+# .agents Claude/Cursor bridge + graphify output (regenerated locally, never commit)
+/.cursor/commands/
+/.cursor/rules/
+/.cursor/agents/
+/.cursor/mcp.json
